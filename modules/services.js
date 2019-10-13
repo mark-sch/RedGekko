@@ -1,5 +1,3 @@
-let sqlite3 = require('sqlite3').verbose();
-let TransactionDatabase = require("sqlite3-transactions").TransactionDatabase;
 let fs = require('fs');
 let events = require('events');
 
@@ -52,6 +50,7 @@ let Queue = require('../utils/queue');
 let Bitmex = require('../exchange/bitmex');
 let BitmexTestnet = require('../exchange/bitmex_testnet');
 let Binance = require('../exchange/binance');
+let BinanceMargin = require('../exchange/binance_margin');
 let Bitfinex = require('../exchange/bitfinex');
 let CoinbasePro = require('../exchange/coinbase_pro');
 let Noop = require('../exchange/noop');
@@ -595,6 +594,12 @@ module.exports = {
                 this.getCandleImporter(),
             ),
             new Binance(
+                this.getEventEmitter(),
+                this.getLogger(),
+                this.getQueue(),
+                this.getCandleImporter(),
+            ),
+            new BinanceMargin(
                 this.getEventEmitter(),
                 this.getLogger(),
                 this.getQueue(),

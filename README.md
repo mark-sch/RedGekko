@@ -30,7 +30,8 @@ As most trading bots just provide basic buy and sell signals they provide many s
 
 TODOS:
 
- * [Huobi Global](https://www.hbg.com/) (margin)
+ * [Huobi Global](https://www.hbg.com/) (margin) 
+ * [Binance Margin](https://www.binance.com/?ref=17569916) (finish this)
 
 ## Technical stuff and packages
 
