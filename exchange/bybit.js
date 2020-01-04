@@ -72,7 +72,7 @@ module.exports = class Bybit {
         });
       });
 
-    const ws = new WebSocket('wss://stream.bybit.com/realtime');
+    const ws = new WebSocket(this.getWssUrl());
 
     const me = this;
     ws.onopen = function() {
@@ -1101,6 +1101,10 @@ module.exports = class Bybit {
 
   getBaseUrl() {
     return 'https://api.bybit.com';
+  }
+
+  getWssUrl() {
+    return 'wss://stream.bybit.com/realtime';
   }
 
   isInverseSymbol(symbol) {

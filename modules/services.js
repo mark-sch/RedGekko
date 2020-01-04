@@ -56,6 +56,7 @@ const Bitfinex = require('../exchange/bitfinex');
 const CoinbasePro = require('../exchange/coinbase_pro');
 const Noop = require('../exchange/noop');
 const Bybit = require('../exchange/bybit');
+const BybitTestnet = require('../exchange/bybit_testnet');
 const FTX = require('../exchange/ftx');
 
 const ExchangeCandleCombine = require('../modules/exchange/exchange_candle_combine');
@@ -595,6 +596,14 @@ module.exports = {
       ),
       new Bitfinex(this.getEventEmitter(), this.getLogger(), this.getRequestClient(), this.getCandleImporter()),
       new Bybit(
+        this.getEventEmitter(),
+        this.getRequestClient(),
+        this.getCandlestickResample(),
+        this.getLogger(),
+        this.getQueue(),
+        this.getCandleImporter()
+      ),
+      new BybitTestnet(
         this.getEventEmitter(),
         this.getRequestClient(),
         this.getCandlestickResample(),

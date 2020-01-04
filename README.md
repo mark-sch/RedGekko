@@ -27,6 +27,7 @@ As most trading bots just provide basic buy and sell signals they provide many s
  * [Coinbase Pro](https://www.coinbase.com/join/5a2ae60e76531100d3af2ee5)
  * [Bitfinex](https://www.bitfinex.com) (margin wallet)
  * [Bybit](https://www.bybit.com/app/register?ref=46AK7) with leverage configuration (Limitation on stops via websocket order; only updated once per minute)
+ * [Bybit Testnet](https://testnet.bybit.com/app/register?ref=rkX34)
  * [FTX](https://ftx.com/#a=1494781) (Perpetual Futures only; @TODO: support trigger orders like stops)
  
 TODOS:
