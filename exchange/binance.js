@@ -5,6 +5,8 @@ const ExchangeCandlestick = require('./../dict/exchange_candlestick');
 const Ticker = require('./../dict/ticker');
 const TickerEvent = require('./../event/ticker_event');
 const ExchangeOrder = require('../dict/exchange_order');
+const Orderbook = require('./../dict/orderbook');
+const OrderbookEvent = require('./../event/orderbook_event');
 const OrderUtil = require('../utils/order_util');
 const Position = require('../dict/position');
 const Order = require('../dict/order');
@@ -84,6 +86,28 @@ module.exports = class Binance {
       );
     } else {
       this.logger.info('Binace: Starting as anonymous; no trading possible');
+    }
+
+    // orderbook by rest api
+    if (config.getOrderbook != undefined && config.getOrderbook == true) {
+      setInterval(
+        (function f() {
+          symbols.forEach(async symbol => {
+            let ob = await client.book({ symbol: symbol.symbol, limit: 1000 });
+            eventEmitter.emit('orderbook', new OrderbookEvent(
+              'binance',
+              symbol.symbol,
+              new Orderbook(ob['asks'].map(function(item) {
+                  return {'price': item.price, 'size': item.quantity}
+              }), ob['bids'].map(function(item) {
+                  return {'price': item.price, 'size': item.quantity}
+              }))
+            ));
+          });
+          return f;
+        })(),
+        1000 * 2
+      );
     }
 
     symbols.forEach(symbol => {

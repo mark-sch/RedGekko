@@ -8,6 +8,7 @@ const Candlestick = require('./../dict/candlestick');
 const Ticker = require('./../dict/ticker');
 const TickerEvent = require('./../event/ticker_event');
 const Orderbook = require('./../dict/orderbook');
+const OrderbookEvent = require('./../event/orderbook_event');
 const Order = require('./../dict/order');
 const ExchangeCandlestick = require('../dict/exchange_candlestick');
 
@@ -77,10 +78,15 @@ module.exports = class Bybit {
     const me = this;
     ws.onopen = function() {
       me.logger.info('Bybit: Connection opened.');
+      console.log('Bybit: Connection opened.');
 
       symbols.forEach(symbol => {
         ws.send(JSON.stringify({ op: 'subscribe', args: [`kline.${symbol.symbol}.${symbol.periods.join('|')}`] }));
         ws.send(JSON.stringify({ op: 'subscribe', args: [`instrument.${symbol.symbol}`] }));
+        if (config.getOrderbook != undefined && config.getOrderbook == true) {
+          console.log('Bybit: Subscribing orderbook');
+          ws.send(JSON.stringify({ op: 'subscribe', args: [`orderBook25.${symbol.symbol}`] }));
+        }
       });
 
       if (config.key && config.secret && config.key.length > 0 && config.secret.length > 0) {
@@ -171,10 +177,30 @@ module.exports = class Bybit {
               new TickerEvent(
                 me.getName(),
                 symbol,
-                (me.tickers[symbol] = new Ticker(me.getName(), symbol, moment().format('X'), bid, ask))
+                (me.tickers[symbol] = new Ticker(me.getName(), symbol, moment().format('X'), bid, ask, true))
               )
             );
           });
+        } else if (data.data && data.topic && data.topic.startsWith('orderBook25.')) {
+          let symbol = data.topic.split('.')[1];
+          eventEmitter.emit(
+            'ticker',
+            new TickerEvent(
+              me.getName(),
+              symbol,
+              (me.tickers[symbol] = new Ticker(me.getName(), symbol, moment().format('X'), data.data['bids'][0].price, data.data['asks'][0].price, false))
+            )
+          );
+
+          eventEmitter.emit('orderbook', new OrderbookEvent(
+            me.getName(),
+            symbol,
+            new Orderbook(data.data['asks'].map(function(item) {
+                return {'price': item.price, 'size': item.quantity}
+            }), data.data['bids'].map(function(item) {
+                return {'price': item.price, 'size': item.quantity}
+            }))
+          ));
         } else if (data.data && data.topic && data.topic.toLowerCase() === 'order') {
           const orders = data.data;
 

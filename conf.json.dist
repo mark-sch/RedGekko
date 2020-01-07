@@ -10,7 +10,8 @@
         },
         "binance": {
             "key": null,
-            "secret": null
+            "secret": null,
+            "getOrderbook": false
         },
         "coinbase_pro": {
             "key": null,
@@ -19,7 +20,13 @@
         },
         "bybit": {
             "key": null,
-            "secret": null
+            "secret": null,
+            "getOrderbook": false
+        },
+        "bybit_testnet": {
+            "key": null,
+            "secret": null,
+            "getOrderbook": true
         },
         "ftx": {
             "key": null,
@@ -52,6 +59,7 @@
     },
     "tick": {
         "default": null,
+        "orderbook_default": null,
         "warmup": null,
         "signal": null,
         "watchdog": null,
