@@ -16,7 +16,7 @@ As most trading bots just provide basic buy and sell signals they provide many s
  * Support for going "Short" and "Long"
  * Signal browser dashboard for pairs
  * Slack and email notification
- * Join foreign exchange candles (eg. Trade on Bitmex with the faster moving Binace trades / candles)
+ * Join foreign exchange candles (eg. Trade on Bitmex with the faster moving Binance trades / candles)
  * TODO: Show possible arbitrage trades   
 
 ### Exchanges

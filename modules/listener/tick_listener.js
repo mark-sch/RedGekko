@@ -28,11 +28,34 @@ module.exports = class TickListener {
     this.notified = {};
   }
 
+
+  async orderbook2Strategy(strategy, obSnapshot) {
+    const strategyKey = strategy.strategy;
+
+    const result = await this.strategyManager.onOrderbook(
+      strategyKey,
+      obSnapshot,
+      strategy.options || {}
+    );
+    if (!result) {
+      return;
+    }
+
+    /* handle the hedged signal processing here later
+
+    const signal = result.getHedgedSignal();
+    if (!signal || typeof signal === 'undefined') {
+      return;
+    }
+    */
+  }
+
+  
   async visitStrategy(strategy, symbol) {
     const ticker = this.tickers.get(symbol.exchange, symbol.symbol);
 
     if (!ticker) {
-      console.error(`Ticker no found for + ${symbol.exchange}${symbol.symbol}`);
+      console.error(`Ticker not found for + ${symbol.exchange}${symbol.symbol}`);
       return;
     }
 
@@ -96,7 +119,7 @@ module.exports = class TickListener {
     const ticker = this.tickers.get(symbol.exchange, symbol.symbol);
 
     if (!ticker) {
-      console.error(`Ticker no found for + ${symbol.exchange}${symbol.symbol}`);
+      console.error(`Ticker not found for + ${symbol.exchange}${symbol.symbol}`);
       return;
     }
 
@@ -160,7 +183,6 @@ module.exports = class TickListener {
 
   async onTick() {
     const promises = [];
-
     const queue = new PQueue({ concurrency: this.systemUtil.getConfig('tick.pair_signal_concurrency', 10) });
 
     this.instances.symbols
@@ -186,5 +208,24 @@ module.exports = class TickListener {
     await queue.addAll(promises);
 
     queue.clear();
+  }
+
+
+  async onOrderbookTick(obSnapshots) {
+    const promises = [];
+    const queue = new PQueue({ concurrency: this.systemUtil.getConfig('tick.pair_signal_concurrency', 10) });
+
+    let activeStrats = {};
+    this.instances.symbols
+      .filter(symbol => symbol.strategies && symbol.strategies.length > 0)
+      .forEach(symbol => {
+        symbol.strategies.forEach(strategy => {
+          activeStrats[strategy.strategy] = strategy
+        });
+      });
+
+    for (var strategy in activeStrats) {
+      await this.orderbook2Strategy(activeStrats[strategy], obSnapshots);    
+    };
   }
 };

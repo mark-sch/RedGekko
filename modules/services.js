@@ -25,6 +25,8 @@ const CandlestickRepository = require('../modules/repository/candlestick_reposit
 const StrategyManager = require('./strategy/strategy_manager');
 const ExchangeManager = require('./exchange/exchange_manager');
 
+const OrderbookSnapshots = require('../dict/obSnapshots');
+
 const Trade = require('../modules/trade');
 const Http = require('../modules/http');
 const Backtest = require('../modules/backtest');
@@ -91,6 +93,8 @@ let exchangeManager;
 let backtest;
 let pairStateManager;
 let pairStateExecution;
+
+let obSnapshots;
 
 let strategyManager;
 
@@ -349,7 +353,9 @@ module.exports = {
     return (strategyManager = new StrategyManager(
       this.getTechnicalAnalysisValidator(),
       this.getExchangeCandleCombine(),
-      this.getLogger()
+      this.getLogger(),
+      this.getEventEmitter(),
+      this.getConfig()
     ));
   },
 
@@ -523,6 +529,14 @@ module.exports = {
     return (queue = new Queue());
   },
 
+  getOrderbookSnaphots: function() {
+    if (obSnapshots) {
+      return obSnapshots;
+    }
+
+    return (obSnapshots = new OrderbookSnapshots());
+  },
+
   getCandleExportHttp: function() {
     if (candleExportHttp) {
       return candleExportHttp;
@@ -641,7 +655,8 @@ module.exports = {
       this.getSystemUtil(),
       this.getLogsRepository(),
       this.getTickerLogRepository(),
-      this.getExchangePositionWatcher()
+      this.getExchangePositionWatcher(),
+      this.getOrderbookSnaphots()
     );
   },
 

@@ -8,12 +8,14 @@ const Ticker = require('../../dict/ticker');
 const SignalResult = require('./dict/signal_result');
 
 module.exports = class StrategyManager {
-  constructor(technicalAnalysisValidator, exchangeCandleCombine, logger) {
+  constructor(technicalAnalysisValidator, exchangeCandleCombine, logger, eventEmitter, config) {
     this.technicalAnalysisValidator = technicalAnalysisValidator;
     this.exchangeCandleCombine = exchangeCandleCombine;
 
     this.logger = logger;
     this.strategies = undefined;
+    this.eventEmitter = eventEmitter;
+    this.config = config;
   }
 
   getStrategies() {
@@ -32,12 +34,24 @@ module.exports = class StrategyManager {
 
       fs.readdirSync(dir).forEach(file => {
         if (file.endsWith('.js')) {
-          strategies.push(new (require(`${dir}/${file.substr(0, file.length - 3)}`))());
+          strategies.push(new (require(`${dir}/${file.substr(0, file.length - 3)}`))(this.eventEmitter, this.config));
         }
       });
     });
 
     return (this.strategies = strategies);
+  }
+
+  async onOrderbook(strategyName, obSnapshot, options) {
+    const strategy = this.getStrategies().find(strategy => strategy.getName() === strategyName);
+    if (strategy && typeof strategy.onOrderbook === "function") {
+      const strategyResult = await strategy.onOrderbook(obSnapshot, options);
+      if (typeof strategyResult !== 'undefined' && !(strategyResult instanceof SignalResult)) {
+        throw `Invalid strategy return:${strategyName}`;
+      }
+
+      return strategyResult;
+    }
   }
 
   async executeStrategy(strategyName, context, exchange, symbol, options) {
