@@ -440,6 +440,7 @@ module.exports = class Bybit {
   }
 
   async order(order) {
+    //console.log('*** Bybot creating order', order);
     const parameters = Bybit.createOrderBody(order);
 
     parameters.api_key = this.apiKey;
@@ -599,6 +600,7 @@ module.exports = class Bybit {
    * @param symbol
    */
   async updateLeverage(symbol) {
+    //console.log('*** Bybit, update leverage', symbol);
     const config = this.symbols.find(cSymbol => cSymbol.symbol === symbol);
     if (!config) {
       this.logger.error(`Bybit: Invalid leverage config for:${symbol}`);
@@ -665,6 +667,7 @@ module.exports = class Bybit {
   }
 
   async cancelOrder(id) {
+    //console.log('*** Bybit, cancel order', id);
     const order = await this.findOrderById(id);
     if (!order) {
       return;
@@ -792,6 +795,7 @@ module.exports = class Bybit {
   }
 
   static createOrders(orders) {
+    //console.log('*** Bybit, createOrders', orders);
     return orders.map(order => {
       let retry = false;
 
@@ -884,6 +888,7 @@ module.exports = class Bybit {
    * As a websocket fallback update positions also on REST
    */
   async syncOrdersViaRestApi(symbols) {
+    //console.log('*** Bybit, syncOrdersViaRestApi', symbols);
     const promises = [];
 
     symbols.forEach(symbol => {
@@ -976,7 +981,7 @@ module.exports = class Bybit {
               return result && result.response && result.response.statusCode >= 500;
             }
           );
-
+          
           const { error } = result;
           const { response } = result;
           const { body } = result;
@@ -988,6 +993,12 @@ module.exports = class Bybit {
           }
 
           const json = JSON.parse(body);
+         
+          if (json.result && typeof json.result !== 'undefined' && json.result.length === 0) {
+            resolve([]);
+            return;
+          }
+
           if (!json.result || !json.result.data) {
             this.logger.error(`Bybit: Invalid stop-order json:${JSON.stringify({ body: body })}`);
             resolve([]);
