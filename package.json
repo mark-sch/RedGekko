@@ -16,6 +16,7 @@
     }
   ],
   "dependencies": {
+    "@tensorflow/tfjs-node": "^1.5.1",
     "async": "^2.6.2",
     "basic-auth": "^2.0.1",
     "better-queue": "^3.8.10",

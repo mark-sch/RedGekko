@@ -85,7 +85,7 @@ module.exports = class Binance {
         60 * 60 * 15 * 1000
       );
     } else {
-      this.logger.info('Binace: Starting as anonymous; no trading possible');
+      this.logger.info('Binance: Starting as anonymous; no trading possible');
     }
 
     // orderbook by rest api
@@ -106,7 +106,7 @@ module.exports = class Binance {
           });
           return f;
         })(),
-        1000 * 2
+        1000 * 2 * symbols.length
       );
     }
 

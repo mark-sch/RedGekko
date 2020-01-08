@@ -84,7 +84,7 @@ module.exports = class Bybit {
         ws.send(JSON.stringify({ op: 'subscribe', args: [`kline.${symbol.symbol}.${symbol.periods.join('|')}`] }));
         ws.send(JSON.stringify({ op: 'subscribe', args: [`instrument.${symbol.symbol}`] }));
         if (config.getOrderbook != undefined && config.getOrderbook == true) {
-          console.log('Bybit: Subscribing orderbook');
+          console.log('Bybit: Subscribing orderbook', symbol.symbol);
           ws.send(JSON.stringify({ op: 'subscribe', args: [`orderBook25.${symbol.symbol}`] }));
         }
       });
