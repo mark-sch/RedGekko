@@ -7,6 +7,10 @@ As most trading bots just provide basic buy and sell signals they provide many s
 
 **Not production ready** only basic functionality
 
+## New Features
+ * Added Bybit Testnet exchange
+ * Added new events, every strategy can now listen to: onPriceTicker(tickerEvent) and onOrderbook(obSnapshot, options)
+
 ## Features
 
  * Fully use Websocket for exchange communication to react as fast as possible on market
