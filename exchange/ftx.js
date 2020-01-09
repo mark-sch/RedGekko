@@ -101,6 +101,7 @@ module.exports = class Ftx {
 
     ws.onopen = function() {
       me.logger.info('FTX: Connection opened.');
+      console.log('FTX: Connection opened.');
 
       symbols.forEach(symbol => {
         ws.send(JSON.stringify({ op: 'subscribe', channel: 'trades', market: symbol.symbol }));
@@ -199,6 +200,7 @@ module.exports = class Ftx {
 
     ws.onclose = function() {
       logger.info('FTX: Connection closed.');
+      console.log('FTX: Connection closed.');
 
       for (const interval of me.intervals) {
         clearInterval(interval);

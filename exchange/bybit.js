@@ -885,7 +885,7 @@ module.exports = class Bybit {
   }
 
   /**
-   * As a websocket fallback update positions also on REST
+   * As a websocket fallback, update positions also on REST
    */
   async syncOrdersViaRestApi(symbols) {
     //console.log('*** Bybit, syncOrdersViaRestApi', symbols);
@@ -948,7 +948,7 @@ module.exports = class Bybit {
               return;
             }
 
-            resolve(json.result.data || []);
+            resolve((json.result.data == null ? [] : json.result.data) || []);
           })
         );
       });
@@ -958,9 +958,10 @@ module.exports = class Bybit {
         new Promise(async resolve => {
           const parameter = {
             api_key: this.apiKey,
-            limit: 100,
+            limit: 50,
             symbol: symbol,
-            timestamp: new Date().getTime()
+            //recv_window from bybit is 5000, so going 2500 milliseconds ahead to allow more network delay
+            timestamp: (new Date().getTime())+2500
           };
 
           parameter.sign = crypto
@@ -1000,7 +1001,7 @@ module.exports = class Bybit {
           }
 
           if (!json.result || !json.result.data) {
-            this.logger.error(`Bybit: Invalid stop-order json:${JSON.stringify({ body: body })}`);
+            this.logger.error(`Bybit: Invalid stop-order sync, json:${JSON.stringify({ body: body })}`);
             resolve([]);
             return;
           }
