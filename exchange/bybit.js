@@ -37,6 +37,7 @@ module.exports = class Bybit {
     this.tickers = {};
     this.symbols = [];
     this.intervals = [];
+    this.ConnectionHealth = "Bad";
   }
 
   start(config, symbols) {
@@ -50,6 +51,12 @@ module.exports = class Bybit {
     this.positions = {};
     this.orders = {};
     this.leverageUpdated = {};
+
+    this.pongTimer = null;
+    this.pingTimer = null;
+    this.pingInterval = config.pingInterval ? config.pingInterval : 10000;
+    this.pongTimeout = config.pongTimeout ? config.pongTimeout : 1000;
+    this.pingPongSatisfaction = this.pingPongSatisfaction = config.pingPongSatisfaction ? config.pingPongSatisfaction : 150;
 
     this.requestClient
       .executeRequestRetry(
@@ -73,12 +80,12 @@ module.exports = class Bybit {
         });
       });
 
-    const ws = new WebSocket(this.getWssUrl());
-
+    const ws = new WebSocket(this.getWssUrl());;
     const me = this;
+
     ws.onopen = function() {
-      me.logger.info('Bybit: Connection opened.');
-      console.log('Bybit: Connection opened.');
+      me.logger.info(me.getName() + ': Connection opened.');
+      console.log(me.getName() + ': Connection opened.');
 
       symbols.forEach(symbol => {
         ws.send(JSON.stringify({ op: 'subscribe', args: [`kline.${symbol.symbol}.${symbol.periods.join('|')}`] }));
@@ -88,6 +95,8 @@ module.exports = class Bybit {
           ws.send(JSON.stringify({ op: 'subscribe', args: [`orderBook25.${symbol.symbol}`] }));
         }
       });
+
+      me.pingTimer = setInterval(() => {me._ping(ws)}, me.pingInterval);
 
       if (config.key && config.secret && config.key.length > 0 && config.secret.length > 0) {
         me.logger.info('Bybit: sending auth request');
@@ -127,7 +136,19 @@ module.exports = class Bybit {
         if ('success' in data && data.success === false) {
           me.logger.error(`Bybit: error ${event.data}`);
           console.log(`Bybit: error ${event.data}`);
-        } else if ('success' in data && data.success === true) {
+        } else if (data.request && data.request.op === 'ping' && data.ret_msg === 'pong') {
+          if(data.success === true) {
+            me.pingPongDelay = new Date().getTime() - me.pingStart;
+            if (me.pingPongDelay < this.pingPongSatisfaction) {
+              this.ConnectionHealth = "Good";
+            }
+            else {
+              this.ConnectionHealth = "Bad";
+            }
+            console.log(me.getName(), 'PingPong delay:', me.pingPongDelay + 'ms.', this.ConnectionHealth);
+            clearTimeout(me.pongTimer);
+          }
+        }else if ('success' in data && data.success === true) {
           if (data.request && data.request.op === 'auth') {
             me.logger.info('Bybit: Auth successful');
 
@@ -227,8 +248,8 @@ module.exports = class Bybit {
     };
 
     ws.onclose = function() {
-      logger.info('Bybit: Connection closed.');
-      console.log('Bybit: Connection closed.');
+      logger.info(me.getName() + ': Connection closed.');
+      console.log(me.getName() + ': Connection closed.');
 
       for (const interval of me.intervals) {
         clearInterval(interval);
@@ -290,6 +311,31 @@ module.exports = class Bybit {
       });
     });
   }
+
+
+  _ping(ws) {
+    clearTimeout(this.pongTimer);
+    this.pongTimer = null;
+
+    this.pingStart = new Date().getTime();
+    ws.send(JSON.stringify({op: 'ping'}));
+
+    this.pongTimer = setTimeout(() => {
+      console.log(this.getName(), 'connection too slow, ping pong test did not pass, terminating websocket');
+      this.ConnectionHealth = "Bad";
+      this._teardown();
+      ws.terminate();
+    }, this.pongTimeout);
+  }
+
+  _teardown() {
+    if(this.pingTimer) clearInterval(this.pingTimer);
+    if(this.pongTimer) clearTimeout(this.pongTimer);
+
+    this.pongTimer = null;
+    this.pingTimer = null;
+  }
+
 
   /**
    * Updates all position; must be a full update not delta. Unknown current non orders are assumed to be closed
@@ -439,8 +485,8 @@ module.exports = class Bybit {
     return 'bybit';
   }
 
-  async order(order) {
-    //console.log('*** Bybot creating order', order);
+  async order(order, skipLeverage) {
+    console.log('*** Bybit, creating order', order);
     const parameters = Bybit.createOrderBody(order);
 
     parameters.api_key = this.apiKey;
@@ -479,7 +525,7 @@ module.exports = class Bybit {
       url = `${this.getBaseUrl()}/open-api/order/create?${querystring.stringify(parametersSorted)}`;
     }
 
-    await this.updateLeverage(order.symbol);
+    if (!skipLeverage) await this.updateLeverage(order.symbol);
 
     const result = await this.requestClient.executeRequestRetry(
       {
@@ -961,7 +1007,7 @@ module.exports = class Bybit {
             limit: 50,
             symbol: symbol,
             //recv_window from bybit is 5000, so going 2500 milliseconds ahead to allow more network delay
-            timestamp: (new Date().getTime())+2500
+            timestamp: (new Date().getTime())//+2500
           };
 
           parameter.sign = crypto
