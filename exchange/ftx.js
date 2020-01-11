@@ -31,6 +31,7 @@ module.exports = class Ftx {
     this.tickers = {};
     this.symbols = [];
     this.intervals = [];
+    this.ConnectionHealth = "Bad";
     this.ccxtClient = undefined;
 
     this.candlesFromTrades = new CandlesFromTrades(candlestickResample, candleImporter);
@@ -40,6 +41,12 @@ module.exports = class Ftx {
     const { eventEmitter } = this;
     const { logger } = this;
     this.exchange = null;
+
+    this.pongTimer = null;
+    this.pingTimer = null;
+    this.pingInterval = config.pingInterval ? config.pingInterval : 10000;
+    this.pongTimeout = config.pongTimeout ? config.pongTimeout : 1000;
+    this.pingPongSatisfaction = this.pingPongSatisfaction = config.pingPongSatisfaction ? config.pingPongSatisfaction : 150;
 
     const ccxtClient = (this.ccxtClient = new ccxt.ftx({
       apiKey: config.key,
@@ -108,6 +115,8 @@ module.exports = class Ftx {
         ws.send(JSON.stringify({ op: 'subscribe', channel: 'ticker', market: symbol.symbol }));
       });
 
+      me.pingTimer = setInterval(() => {me._ping(ws)}, me.pingInterval);
+
       if (config.key && config.secret && config.key.length > 0 && config.secret.length > 0) {
         const time = new Date().getTime();
         const signature = crypto
@@ -151,6 +160,17 @@ module.exports = class Ftx {
       if (event.type === 'message') {
         const data = JSON.parse(event.data);
 
+        if (data && data.type === 'pong') {
+            me.pingPongDelay = new Date().getTime() - me.pingStart;
+            if (me.pingPongDelay < this.pingPongSatisfaction) {
+              this.ConnectionHealth = "Good";
+            }
+            else {
+              this.ConnectionHealth = "Bad";
+            }
+            console.log(me.getName(), 'PingPong delay:', me.pingPongDelay + 'ms.', this.ConnectionHealth);
+            clearTimeout(me.pongTimer);
+        }
         if (data.type === 'subscribed') {
           logger.debug(`FTX: subscribed to channel: ${data.channel} - ${event.data}`);
           return;
@@ -237,6 +257,31 @@ module.exports = class Ftx {
       });
     });
   }
+
+
+  _ping(ws) {
+    clearTimeout(this.pongTimer);
+    this.pongTimer = null;
+
+    this.pingStart = new Date().getTime();
+    ws.send(JSON.stringify({op: 'ping'}));
+
+    this.pongTimer = setTimeout(() => {
+      console.log(this.getName(), 'connection too slow, ping pong test did not pass, terminating websocket');
+      this.ConnectionHealth = "Bad";
+      this._teardown();
+      ws.terminate();
+    }, this.pongTimeout);
+  }
+
+  _teardown() {
+    if(this.pingTimer) clearInterval(this.pingTimer);
+    if(this.pongTimer) clearTimeout(this.pongTimer);
+
+    this.pongTimer = null;
+    this.pingTimer = null;
+  }
+
 
   /**
    * Updates all position; must be a full update not delta. Unknown current non orders are assumed to be closed
