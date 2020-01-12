@@ -139,7 +139,7 @@ module.exports = class Bybit {
         } else if (data.request && data.request.op === 'ping' && data.ret_msg === 'pong') {
           if(data.success === true) {
             me.pingPongDelay = new Date().getTime() - me.pingStart;
-            if (me.pingPongDelay < this.pingPongSatisfaction) {
+            if (me.pingPongDelay < me.pingPongSatisfaction) {
               this.ConnectionHealth = "Good";
             }
             else {

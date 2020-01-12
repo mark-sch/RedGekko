@@ -162,7 +162,7 @@ module.exports = class Ftx {
 
         if (data && data.type === 'pong') {
             me.pingPongDelay = new Date().getTime() - me.pingStart;
-            if (me.pingPongDelay < this.pingPongSatisfaction) {
+            if (me.pingPongDelay < me.pingPongSatisfaction) {
               this.ConnectionHealth = "Good";
             }
             else {

@@ -1,5 +1,5 @@
 const BinanceClient = require('binance-api-node').default;
-
+const WebSocket = require('ws');
 const moment = require('moment');
 const ExchangeCandlestick = require('./../dict/exchange_candlestick');
 const Ticker = require('./../dict/ticker');
@@ -11,6 +11,7 @@ const OrderUtil = require('../utils/order_util');
 const Position = require('../dict/position');
 const Order = require('../dict/order');
 const OrderBag = require('./utils/order_bag');
+
 
 module.exports = class Binance {
   constructor(eventEmitter, logger, queue, candleImport) {
@@ -31,10 +32,14 @@ module.exports = class Binance {
 
   start(config, symbols) {
     this.symbols = symbols;
-
     const { eventEmitter } = this;
-
     const opts = {};
+
+    this.pongTimer = null;
+    this.pingTimer = null;
+    this.pingInterval = config.pingInterval ? config.pingInterval : 10000;
+    this.pongTimeout = config.pongTimeout ? config.pongTimeout : 1000;
+    this.pingPongSatisfaction = this.pingPongSatisfaction = config.pingPongSatisfaction ? config.pingPongSatisfaction : 150;
 
     if (config.key && config.secret && config.key.length > 0 && config.secret.length > 0) {
       opts.apiKey = config.key;
@@ -42,8 +47,33 @@ module.exports = class Binance {
     }
 
     const client = (this.client = BinanceClient(opts));
-
     const me = this;
+    //use an extra ws connection to measure the ping speed
+    const ws = new WebSocket('wss://stream.binance.com:9443/ws');
+
+    ws.onopen = function() {
+      me.logger.info('Binance: Connection opened.');
+      console.log('Binance: Connection opened.');
+
+      me.pingTimer = setInterval(() => {me._ping(ws)}, me.pingInterval);
+    }
+    ws.onmessage = async function(event) {
+      if (event.type === 'message') {
+        const data = JSON.parse(event.data);
+
+        if (data && data.id === 2) {
+            me.pingPongDelay = new Date().getTime() - me.pingStart;
+            if (me.pingPongDelay < me.pingPongSatisfaction) {
+              this.ConnectionHealth = "Good";
+            }
+            else {
+              this.ConnectionHealth = "Bad";
+            }
+            console.log(me.getName(), 'PingPong delay:', me.pingPongDelay + 'ms.', this.ConnectionHealth);
+            clearTimeout(me.pongTimer);
+        }
+      }
+    }
 
     if (config.key && config.secret) {
       this.client.ws.user(async event => {
@@ -169,6 +199,36 @@ module.exports = class Binance {
         });
       });
     });
+  }
+
+  _ping(ws) {
+    clearTimeout(this.pongTimer);
+    this.pongTimer = null;
+
+    this.pingStart = new Date().getTime();
+    //ws ping
+    ws.send(JSON.stringify({
+      "method": "GET_PROPERTY",
+      "params": [
+        "combined"
+      ],
+      "id": 2
+    }));
+
+    this.pongTimer = setTimeout(() => {
+      console.log(this.getName(), 'connection too slow, ping pong test did not pass, terminating websocket');
+      this.ConnectionHealth = "Bad";
+      this._teardown();
+      ws.terminate();
+    }, this.pongTimeout);
+  }
+
+  _teardown() {
+    if(this.pingTimer) clearInterval(this.pingTimer);
+    if(this.pongTimer) clearTimeout(this.pongTimer);
+
+    this.pongTimer = null;
+    this.pingTimer = null;
   }
 
   async order(order) {
