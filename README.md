@@ -55,7 +55,7 @@ TODOS:
 ### CentOS 8 installation
 ```
 curl -o- https://raw.githubusercontent.com/mark-sch/RedGekko/master/install_centos.sh | bash
-cd RedGecko
+cd RedGekko
 node index.js trade
 ```
 Tested on Amazon AWS, with new CentOS image installed. Only execute once, config files are created with default values.
