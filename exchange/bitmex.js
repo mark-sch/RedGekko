@@ -2,6 +2,7 @@ const moment = require('moment');
 const request = require('request');
 const crypto = require('crypto');
 const BitMEXClient = require('bitmex-realtime-api');
+const WebSocket = require('ws');
 const _ = require('lodash');
 const querystring = require('querystring');
 const Candlestick = require('./../dict/candlestick');
@@ -94,6 +95,12 @@ module.exports = class Bitmex {
     this.orders = {};
     this.leverageUpdated = {};
 
+    this.pongTimer = null;
+    this.pingTimer = null;
+    this.pingInterval = config.pingInterval ? config.pingInterval : 10000;
+    this.pongTimeout = config.pongTimeout ? config.pongTimeout : 1000;
+    this.pingPongSatisfaction = this.pingPongSatisfaction = config.pingPongSatisfaction ? config.pingPongSatisfaction : 150;
+
     const opts = {
       testnet: this.getBaseUrl().includes('testnet')
     };
@@ -104,6 +111,32 @@ module.exports = class Bitmex {
     }
 
     const client = new BitMEXClient(opts);
+    //use an extra ws connection to measure the ping speed
+    const ws = new WebSocket('wss://stream.binance.com:9443/ws');
+
+    ws.onopen = function() {
+      me.logger.info('Binance: Connection opened.');
+      console.log('Binance: Connection opened.');
+
+      me.pingTimer = setInterval(() => {me._ping(ws)}, me.pingInterval);
+    }
+    ws.onmessage = async function(event) {
+      if (event.type === 'message') {
+        const data = JSON.parse(event.data);
+
+        if (data && data.id === 2) {
+            me.pingPongDelay = new Date().getTime() - me.pingStart;
+            if (me.pingPongDelay < me.pingPongSatisfaction) {
+              this.ConnectionHealth = "Good";
+            }
+            else {
+              this.ConnectionHealth = "Bad";
+            }
+            console.log(me.getName(), 'PingPong delay:', me.pingPongDelay + 'ms.', this.ConnectionHealth);
+            clearTimeout(me.pongTimer);
+        }
+      }
+    }
 
     client.on('error', error => {
       console.error(error);
@@ -341,6 +374,38 @@ module.exports = class Bitmex {
       this.logger.info('Bitmex: Starting as anonymous; no trading possible');
     }
   }
+
+
+  _ping(ws) {
+    clearTimeout(this.pongTimer);
+    this.pongTimer = null;
+
+    this.pingStart = new Date().getTime();
+    //ws ping
+    ws.send(JSON.stringify({
+      "method": "GET_PROPERTY",
+      "params": [
+        "combined"
+      ],
+      "id": 2
+    }));
+
+    this.pongTimer = setTimeout(() => {
+      console.log(this.getName(), 'connection too slow, ping pong test did not pass, terminating websocket');
+      this.ConnectionHealth = "Bad";
+      this._teardown();
+      ws.terminate();
+    }, this.pongTimeout);
+  }
+
+  _teardown() {
+    if(this.pingTimer) clearInterval(this.pingTimer);
+    if(this.pongTimer) clearTimeout(this.pongTimer);
+
+    this.pongTimer = null;
+    this.pingTimer = null;
+  }
+  
 
   /**
    * Updates all position; must be a full update not delta. Unknown current non orders are assumed to be closed
