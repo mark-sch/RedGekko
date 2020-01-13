@@ -1,4 +1,4 @@
-# Crypto Trading Bot
+# RedGekko - crypto trading bot
 
 [![Build Status](https://travis-ci.org/Haehnchen/crypto-trading-bot.svg?branch=master)](https://travis-ci.org/Haehnchen/crypto-trading-bot)
 
@@ -8,8 +8,9 @@ As most trading bots just provide basic buy and sell signals they provide many s
 **Not production ready** only basic functionality
 
 ## New Features
+ * Added exchange latency measurements with websocket pingpong requests
  * Added Bybit Testnet exchange
- * Added new events, every strategy can now listen to: onPriceTicker(tickerEvent) and onOrderbook(obSnapshot, options)
+ * Added new events, every strategy can listen to: onPriceTicker(tickerEvent) and onOrderbook(obSnapshot, options)
 
 ## Features
 
@@ -50,9 +51,16 @@ TODOS:
  * Bootstrap v4
  * Tradingview widgets
 
-## How to use
+## Getting started
+### CentOS 8 installation
+```
+curl -o- https://raw.githubusercontent.com/mark-sch/RedGekko/master/install_centos.sh | bash
+cd RedGecko
+node index.js trade
+```
+Tested on Amazon AWS, with new CentOS image installed. Only execute once, config files are created with default values.
 
-
+## General installation procedure
 ### [optional] Preinstall
 
 The tulip library is used for indicators; which sometimes is having some issues on `npm install` because of code compiling:
