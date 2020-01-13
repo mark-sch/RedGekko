@@ -111,19 +111,19 @@ module.exports = class Bitmex {
     });
 
     client.on('open', () => {
-      logger.info('Bitmex: Connection opened.');
-      console.log('Bitmex: Connection opened.');
+      logger.info(me.getName() + ': Connection opened.');
+      console.log(me.getName() + ': Connection opened.');
     });
 
     client.on('close', () => {
-      logger.info('Bitmex: Connection closed.');
-      console.log('Bitmex: Connection closed.');
+      logger.info(me.getName() + ': Connection closed.');
+      console.log(me.getName() + ': Connection closed.');
     });
 
     const me = this;
     client.on('end', () => {
-      logger.info('Bitmex: Connection closed.');
-      console.log('Bitmex: Connection closed.');
+      logger.info(me.getName() + ': Connection closed.');
+      console.log(me.getName() + ': Connection closed.');
 
       // retry connecting after some second to not bothering on high load
       setTimeout(() => {

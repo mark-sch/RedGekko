@@ -113,7 +113,7 @@ module.exports = class Trade {
 
     eventEmitter.on('ticker', async function(tickerEvent) {
       tickers.set(tickerEvent.ticker);
-      me.tickerDatabaseListener.onTicker(tickerEvent);
+      //me.tickerDatabaseListener.onTicker(tickerEvent);
     });
 
     eventEmitter.on('orderbook', function(orderbookEvent) {
@@ -130,6 +130,10 @@ module.exports = class Trade {
     });
 
     eventEmitter.on('order', async event => me.createOrderListener.onCreateOrder(event));
+
+    eventEmitter.on('createHedgedOrders', async event => me.createOrderListener.onCreateHedgedOrders(event));
+
+    eventEmitter.on('closeHedgedOrders', async event => me.createOrderListener.onCloseHedgedOrders(event));
 
     eventEmitter.on('tick', async () => {
       me.tickListener.onTick();

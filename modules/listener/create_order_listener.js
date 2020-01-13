@@ -7,6 +7,25 @@ module.exports = class CreateOrderListener {
     this.logger = logger;
   }
 
+
+  async onCreateHedgedOrders(opportunity) {
+    console.log(new Date().getTime(), 'bbbbbbbbbbb');
+    this.logger.debug(`Create Hedged Orders:${JSON.stringify(opportunity)}`);
+    //console.log(`Create Hedged Orders:${JSON.stringify(opportunity)}`);
+
+    setTimeout(() => {opportunity.hPair.order.hedgeCompleted = true}, 1000); //just for testing !!!!!!
+  }
+
+
+  async onCloseHedgedOrders(opportunity) {
+    console.log(new Date().getTime(), 'ccccccccccc');
+    this.logger.debug(`Close Hedged Orders:${JSON.stringify(opportunity)}`);
+    console.log(`Close Hedged Orders:${JSON.stringify(opportunity)}`);
+
+    setTimeout(() => {opportunity.hPair.order.hedgeCloseCompleted = true}, 1000); //just for testing !!!!!!
+  }
+
+
   async onCreateOrder(orderEvent) {
     this.logger.debug(`Create Order:${JSON.stringify(orderEvent)}`);
 
