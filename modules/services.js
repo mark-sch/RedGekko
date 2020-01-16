@@ -54,6 +54,7 @@ const Queue = require('../utils/queue');
 const Bitmex = require('../exchange/bitmex');
 const BitmexTestnet = require('../exchange/bitmex_testnet');
 const Binance = require('../exchange/binance');
+const BinanceFutures = require('../exchange/binance_futures');
 const Bitfinex = require('../exchange/bitfinex');
 const CoinbasePro = require('../exchange/coinbase_pro');
 const Noop = require('../exchange/noop');
@@ -453,7 +454,8 @@ module.exports = {
       this.getExchangeManager(),
       this.getOrderCalculator(),
       this.getOrderExecutor(),
-      this.getLogger()
+      this.getLogger(),
+      this.getTickers()
     ));
   },
 
@@ -626,6 +628,14 @@ module.exports = {
         this.getCandleImporter()
       ),
       new FTX(
+        this.getEventEmitter(),
+        this.getRequestClient(),
+        this.getCandlestickResample(),
+        this.getLogger(),
+        this.getQueue(),
+        this.getCandleImporter()
+      ),
+      new BinanceFutures(
         this.getEventEmitter(),
         this.getRequestClient(),
         this.getCandlestickResample(),

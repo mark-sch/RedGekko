@@ -29,11 +29,13 @@ As most trading bots just provide basic buy and sell signals they provide many s
  * [Bitmex](https://www.bitmex.com/register/jS4mLN) with leverage configuration
  * [Bitmex Testnet](https://www.bitmex.com/register/jS4mLN)
  * [Binance](https://www.binance.com/?ref=17569916)
+ * [Binance Futures](https://www.binance.com/?ref=17569916)
  * [Coinbase Pro](https://www.coinbase.com/join/5a2ae60e76531100d3af2ee5)
  * [Bitfinex](https://www.bitfinex.com) (margin wallet)
  * [Bybit](https://www.bybit.com/app/register?ref=46AK7) with leverage configuration (Limitation on stops via websocket order; only updated once per minute)
  * [Bybit Testnet](https://testnet.bybit.com/app/register?ref=rkX34)
- * [FTX](https://ftx.com/#a=1494781) (Perpetual Futures only; @TODO: support trigger orders like stops)
+ * [FTX](https://ftx.com/#a=1494781) (Perpetual Futures only)
+
  
 TODOS:
 
@@ -117,11 +119,13 @@ For initialize the configuration once
 ```
 After this you can use `docker-compose` which will give you a running bot via <http://127.0.0.1:8080>
 
-#### Setting Up Telegram Bot
+## Setting Up Telegram Bot
+
 First, you'll need to create a bot for Telegram. Just talk to [BotFather](https://telegram.me/botfather) and follow simple steps until it gives you a token for it.
 You'll also need to create a Telegram group, the place where you and crypto-trading-bot will communicate. After creating it, add the bot as administrator (make sure to uncheck "All Members Are Admins").
 
-##### Retrieving Chat IDs
+### Retrieving Chat IDs
+
 Invite ```@RawDataBot``` to your group and get your group id in sended chat id field
 
 ```text
@@ -183,18 +187,23 @@ webserver.ip: 127.0.0.1
 
 ```
 
+## Web UI
+
+### Dashboard
+
 ![Webserver UI](documentation/cryptobot.png "Webserver UI")
 
-## Backtesting
+### Backtesting
 
 Currently there is a the UI for backtesting
 
-### Result Page
-
 ![Webserver UI](documentation/backtest_result.png "Backtest Result")
 
+### Manual Orders
 
-### Fill data
+![Webserver UI](documentation/manual_order.png "Manual Orders")
+
+## Fill data
 
 ```
 node index.js backfill -e bitmex -p 1m -s XRPZ18
