@@ -45,6 +45,11 @@ module.exports = class BinanceFutures {
     this.ccxtExchangeOrder = BinanceFutures.createCustomCcxtOrderInstance(ccxtClient, symbols, logger);
 
     const me = this;
+    this.pongTimer = null;
+    this.pingTimer = null;
+    this.pingInterval = config.pingInterval ? config.pingInterval : 10000;
+    this.pongTimeout = config.pongTimeout ? config.pongTimeout : 1000;
+    this.pingPongSatisfaction = this.pingPongSatisfaction = config.pingPongSatisfaction ? config.pingPongSatisfaction : 150;
 
     if (config.key && config.secret && config.key.length > 0 && config.secret.length > 0) {
       setInterval(async () => {
@@ -60,13 +65,13 @@ module.exports = class BinanceFutures {
       setTimeout(async () => {
         await me.initUserWebsocket();
       }, 2000);
-
-      setTimeout(async () => {
-        await me.initPublicWebsocket(symbols, config);
-      }, 5000);
     } else {
       me.logger.info('Binance Futures: Starting as anonymous; no trading possible');
     }
+
+    setTimeout(async () => {
+      await me.initPublicWebsocket(symbols, config);
+    }, 500);
 
     symbols.forEach(symbol => {
       symbol.periods.forEach(period => {
@@ -258,12 +263,15 @@ module.exports = class BinanceFutures {
 
     ws.onopen = function() {
       me.logger.info('Binance Futures: Public stream opened.');
+      console.log(me.getName() + ': Connection opened.');
 
       symbols.forEach(symbol => {
         const params = [
           `${symbol.symbol.toLowerCase()}@bookTicker`,
           ...symbol.periods.map(p => `${symbol.symbol.toLowerCase()}@kline_${p}`)
         ];
+        
+        me.pingTimer = setInterval(() => {me._ping(ws)}, me.pingInterval);
 
         me.logger.debug(`Binance Futures: Public stream subscribing: ${JSON.stringify([symbol.symbol, params])}`);
 
@@ -281,7 +289,17 @@ module.exports = class BinanceFutures {
       if (event.type && event.type === 'message') {
         const body = JSON.parse(event.data);
 
-        if (body.stream && body.stream.toLowerCase().includes('@bookticker')) {
+        if (body && body.id === 2) {
+          me.pingPongDelay = new Date().getTime() - me.pingStart;
+          if (me.pingPongDelay < me.pingPongSatisfaction) {
+            me.ConnectionHealth = "Good";
+          }
+          else {
+            me.ConnectionHealth = "Bad";
+          }
+          //console.log(me.getName(), 'PingPong delay:', me.pingPongDelay + 'ms.', me.ConnectionHealth);
+          clearTimeout(me.pongTimer);
+        } else if (body.stream && body.stream.toLowerCase().includes('@bookticker')) {
           me.eventEmitter.emit(
             'ticker',
             new TickerEvent(
@@ -294,7 +312,8 @@ module.exports = class BinanceFutures {
                 parseFloat(body.data.b),
                 parseFloat(body.data.a)
               ))
-            )
+            ),
+            me
           );
         } else if (body.stream && body.stream.toLowerCase().includes('@kline')) {
           await me.candleImporter.insertThrottledCandles([
@@ -316,13 +335,48 @@ module.exports = class BinanceFutures {
 
     ws.onclose = function() {
       me.logger.info('Binance futures: Public stream connection closed.');
+      console.log(me.getName() + ': Connection closed.');
 
       setTimeout(async () => {
         me.logger.info('Binance futures: Public stream connection reconnect');
+        console.log('Binance futures: Public stream connection reconnect');
         await me.initPublicWebsocket(symbols, config);
       }, 1000 * 30);
     };
   }
+
+
+  _ping(ws) {
+    clearTimeout(this.pongTimer);
+    this.pongTimer = null;
+
+    this.pingStart = new Date().getTime();
+    //ws ping
+    ws.send(JSON.stringify({
+      "method": "GET_PROPERTY",
+      "params": [
+        "combined"
+      ],
+      "id": 2
+    }));
+
+    this.pongTimer = setTimeout(() => {
+      console.log(this.getName(), 'connection too slow, ping pong test did not pass, terminating websocket');
+      this.ConnectionHealth = "Bad";
+      this._teardown();
+      ws.terminate();
+    }, this.pongTimeout);
+  }
+
+
+  _teardown() {
+    if(this.pingTimer) clearInterval(this.pingTimer);
+    if(this.pongTimer) clearTimeout(this.pongTimer);
+
+    this.pongTimer = null;
+    this.pingTimer = null;
+  }
+
 
   async initUserWebsocket() {
     let response;
@@ -395,10 +449,12 @@ module.exports = class BinanceFutures {
 
     ws.onclose = function() {
       me.logger.info('Binance futures: User stream connection closed.');
+      console.log('Binance futures: User stream connection closed.');
       clearInterval(heartbeat);
 
       setTimeout(async () => {
         me.logger.info('Binance futures: User stream connection reconnect');
+        console.log('Binance futures: User stream connection reconnect');
         await me.initUserWebsocket();
       }, 1000 * 30);
     };
