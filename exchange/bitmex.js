@@ -132,7 +132,7 @@ module.exports = class Bitmex {
             else {
               this.ConnectionHealth = "Bad";
             }
-            console.log(me.getName(), 'PingPong delay:', me.pingPongDelay + 'ms.', this.ConnectionHealth);
+            //console.log(me.getName(), 'PingPong delay:', me.pingPongDelay + 'ms.', this.ConnectionHealth);
             clearTimeout(me.pongTimer);
         }
       }
@@ -305,7 +305,8 @@ module.exports = class Bitmex {
                 instrument.bidPrice,
                 instrument.askPrice
               ))
-            )
+            ),
+            this
           );
         });
       });
@@ -405,7 +406,7 @@ module.exports = class Bitmex {
     this.pongTimer = null;
     this.pingTimer = null;
   }
-  
+
 
   /**
    * Updates all position; must be a full update not delta. Unknown current non orders are assumed to be closed

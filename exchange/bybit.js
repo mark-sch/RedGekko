@@ -138,14 +138,14 @@ module.exports = class Bybit {
           console.log(`Bybit: error ${event.data}`);
         } else if (data.request && data.request.op === 'ping' && data.ret_msg === 'pong') {
           if(data.success === true) {
-            me.pingPongDelay = new Date().getTime() - me.pingStart;
-            if (me.pingPongDelay < me.pingPongSatisfaction) {
+            this.pingPongDelay = new Date().getTime() - me.pingStart;
+            if (this.pingPongDelay < this.pingPongSatisfaction) {
               this.ConnectionHealth = "Good";
             }
             else {
               this.ConnectionHealth = "Bad";
             }
-            console.log(me.getName(), 'PingPong delay:', me.pingPongDelay + 'ms.', this.ConnectionHealth);
+            //console.log(me.getName(), 'PingPong delay:', this.pingPongDelay + 'ms.', this.ConnectionHealth);
             clearTimeout(me.pongTimer);
           }
         }else if ('success' in data && data.success === true) {
@@ -199,7 +199,8 @@ module.exports = class Bybit {
                 me.getName(),
                 symbol,
                 (me.tickers[symbol] = new Ticker(me.getName(), symbol, moment().format('X'), bid, ask, true))
-              )
+              ),
+              this
             );
           });
         } else if (data.data && data.topic && data.topic.startsWith('orderBook25.')) {
@@ -210,7 +211,8 @@ module.exports = class Bybit {
               me.getName(),
               symbol,
               (me.tickers[symbol] = new Ticker(me.getName(), symbol, moment().format('X'), data.data['bids'][0].price, data.data['asks'][0].price, false))
-            )
+            ),
+            this
           );
 
           eventEmitter.emit('orderbook', new OrderbookEvent(

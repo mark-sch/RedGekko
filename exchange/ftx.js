@@ -161,14 +161,14 @@ module.exports = class Ftx {
         const data = JSON.parse(event.data);
 
         if (data && data.type === 'pong') {
-            me.pingPongDelay = new Date().getTime() - me.pingStart;
-            if (me.pingPongDelay < me.pingPongSatisfaction) {
+            this.pingPongDelay = new Date().getTime() - me.pingStart;
+            if (this.pingPongDelay < this.pingPongSatisfaction) {
               this.ConnectionHealth = "Good";
             }
             else {
               this.ConnectionHealth = "Bad";
             }
-            console.log(me.getName(), 'PingPong delay:', me.pingPongDelay + 'ms.', this.ConnectionHealth);
+            //console.log(me.getName(), 'PingPong delay:', this.pingPongDelay + 'ms.', this.ConnectionHealth);
             clearTimeout(me.pongTimer);
         }
         if (data.type === 'subscribed') {
@@ -200,20 +200,25 @@ module.exports = class Ftx {
         }
 
         if (data.channel === 'ticker') {
-          eventEmitter.emit(
-            'ticker',
-            new TickerEvent(
-              me.getName(),
-              data.market,
-              (me.tickers[data.market] = new Ticker(
+          if (data.data.bid != me.lastBidPrice || data.data.ask != me.lastAskPrice) {
+            me.lastBidPrice = data.data.bid;
+            me.lastAskPrice = data.data.ask;
+            eventEmitter.emit(
+              'ticker',
+              new TickerEvent(
                 me.getName(),
                 data.market,
-                moment().format('X'),
-                data.data.bid,
-                data.data.ask
-              ))
-            )
-          );
+                (me.tickers[data.market] = new Ticker(
+                  me.getName(),
+                  data.market,
+                  moment().format('X'),
+                  data.data.bid,
+                  data.data.ask
+                ))
+              ),
+              this
+            );
+          }
         }
       }
     };

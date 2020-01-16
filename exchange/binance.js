@@ -64,12 +64,12 @@ module.exports = class Binance {
         if (data && data.id === 2) {
             me.pingPongDelay = new Date().getTime() - me.pingStart;
             if (me.pingPongDelay < me.pingPongSatisfaction) {
-              this.ConnectionHealth = "Good";
+              me.ConnectionHealth = "Good";
             }
             else {
-              this.ConnectionHealth = "Bad";
+              me.ConnectionHealth = "Bad";
             }
-            console.log(me.getName(), 'PingPong delay:', me.pingPongDelay + 'ms.', this.ConnectionHealth);
+            //console.log(me.getName(), 'PingPong delay:', me.pingPongDelay + 'ms.', me.ConnectionHealth);
             clearTimeout(me.pongTimer);
         }
       }
@@ -155,7 +155,8 @@ module.exports = class Binance {
               ticker.bestBid,
               ticker.bestAsk
             ))
-          )
+          ),
+          this
         );
       });
 
