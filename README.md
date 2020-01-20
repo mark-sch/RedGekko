@@ -9,6 +9,7 @@ As most trading bots just provide basic buy and sell signals they provide many s
 
 ## New Features
  * Added exchange latency measurements with websocket pingpong requests
+ * Added Binance Futures Testnet exchange
  * Added Bybit Testnet exchange
  * Added new events, every strategy can listen to: onPriceTicker(tickerEvent) and onOrderbook(obSnapshot, options)
 
@@ -30,6 +31,7 @@ As most trading bots just provide basic buy and sell signals they provide many s
  * [Bitmex Testnet](https://www.bitmex.com/register/jS4mLN)
  * [Binance](https://www.binance.com/?ref=17569916)
  * [Binance Futures](https://www.binance.com/?ref=17569916)
+ * [Binance Futures Testnet](https://testnet.binancefuture.com)
  * [Kraken Futures](https://www.kraken.com) just price ticker atm
  * [Coinbase Pro](https://www.coinbase.com/join/5a2ae60e76531100d3af2ee5)
  * [Bitfinex](https://www.bitfinex.com) (margin wallet)

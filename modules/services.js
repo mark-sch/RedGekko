@@ -55,6 +55,7 @@ const Bitmex = require('../exchange/bitmex');
 const BitmexTestnet = require('../exchange/bitmex_testnet');
 const Binance = require('../exchange/binance');
 const BinanceFutures = require('../exchange/binance_futures');
+const BinanceFuturesTestnet = require('../exchange/binance_futures_testnet');
 const KrakenFutures = require('../exchange/kraken_futures');
 const Bitfinex = require('../exchange/bitfinex');
 const CoinbasePro = require('../exchange/coinbase_pro');
@@ -637,6 +638,14 @@ module.exports = {
         this.getCandleImporter()
       ),
       new BinanceFutures(
+        this.getEventEmitter(),
+        this.getRequestClient(),
+        this.getCandlestickResample(),
+        this.getLogger(),
+        this.getQueue(),
+        this.getCandleImporter()
+      ),
+      new BinanceFuturesTestnet(
         this.getEventEmitter(),
         this.getRequestClient(),
         this.getCandlestickResample(),

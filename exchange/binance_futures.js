@@ -32,6 +32,12 @@ module.exports = class BinanceFutures {
     this.exchange = null;
 
     const ccxtClient = (this.ccxtClient = new ccxt.binance({
+      urls :{
+        api: { 
+          fapiPublic: this.getBaseUrl() + '/fapi/v1',
+          fapiPrivate: this.getBaseUrl() + '/fapi/v1'
+        }
+      },
       apiKey: config.key,
       secret: config.secret,
       options: { defaultType: 'future', warnOnFetchOpenOrdersWithoutSymbol: false }
@@ -253,9 +259,17 @@ module.exports = class BinanceFutures {
     return false;
   }
 
+  getBaseUrl() {
+    return 'https://fapi.binance.com';
+  }
+
+  getBaseWebsocketUrl() {
+    return 'wss://fstream.binance.com';
+  }
+
   async initPublicWebsocket(symbols, config) {
     const me = this;
-    const ws = new WebSocket('wss://fstream.binance.com/stream');
+    const ws = new WebSocket(this.getBaseWebsocketUrl() + '/stream');
 
     ws.onerror = function(e) {
       me.logger.info(`Binance Futures: Public stream error: ${String(e)}`);
@@ -393,7 +407,7 @@ module.exports = class BinanceFutures {
     }
 
     const me = this;
-    const ws = new WebSocket(`wss://fstream.binance.com/ws/${response.listenKey}`);
+    const ws = new WebSocket(`${this.getBaseUrl()}/ws/${response.listenKey}`);
     ws.onerror = function(e) {
       me.logger.info(`Binance Futures: Connection error: ${String(e)}`);
     };
