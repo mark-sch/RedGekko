@@ -397,23 +397,24 @@ module.exports = class BinanceFutures {
     try {
       response = await this.ccxtClient.fapiPublicPostListenKey();
     } catch (e) {
-      this.logger.error(`Binance Futures: listenKey error: ${String(e)}`);
+      this.logger.error(`${me.getName()}: listenKey error: ${String(e)}`);
       return undefined;
     }
 
     if (!response || !response.listenKey) {
-      this.logger.error(`Binance Futures: invalid listenKey response: ${JSON.stringify(response)}`);
+      this.logger.error(`${me.getName()}: invalid listenKey response: ${JSON.stringify(response)}`);
       return undefined;
     }
 
     const me = this;
-    const ws = new WebSocket(`${this.getBaseUrl()}/ws/${response.listenKey}`);
+    const ws = new WebSocket(`${this.getBaseWebsocketUrl()}/ws/${response.listenKey}`);
     ws.onerror = function(e) {
-      me.logger.info(`Binance Futures: Connection error: ${String(e)}`);
+      me.logger.info(`${me.getName()}: Connection error: ${String(e)}`);
+      console.log(`${me.getName()}: Connection error: `, e.error);
     };
 
     ws.onopen = function() {
-      me.logger.info(`Binance Futures: Opened user stream`);
+      me.logger.info(`${me.getName()}: Opened user stream`);
     };
 
     ws.onmessage = async function(event) {
@@ -462,13 +463,13 @@ module.exports = class BinanceFutures {
     }, 1000 * 60 * 10);
 
     ws.onclose = function() {
-      me.logger.info('Binance futures: User stream connection closed.');
-      console.log('Binance futures: User stream connection closed.');
+      me.logger.info(me.getName() + ': User stream connection closed.');
+      console.log(me.getName() + ': User stream connection closed.');
       clearInterval(heartbeat);
 
       setTimeout(async () => {
-        me.logger.info('Binance futures: User stream connection reconnect');
-        console.log('Binance futures: User stream connection reconnect');
+        me.logger.info(me.getName() + ': User stream connection reconnect');
+        console.log(me.getName() + ': User stream connection reconnect');
         await me.initUserWebsocket();
       }, 1000 * 30);
     };
