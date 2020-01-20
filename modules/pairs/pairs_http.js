@@ -19,12 +19,13 @@ module.exports = class PairsHttp {
 
         const position = await this.exchangeManager.getPosition(symbol.exchange, symbol.symbol);
         const state = await this.pairStateManager.get(symbol.exchange, symbol.symbol);
-
+console.log(symbol.trade);
         const item = {
           exchange: symbol.exchange,
           symbol: symbol.symbol,
           watchdogs: symbol.watchdogs,
           state: symbol.state,
+          process: 'idle',
           has_position: position !== undefined,
           capital: `${_.get(symbol, 'trade.capital', 0)} / ${_.get(symbol, 'trade.currency_capital', 0)}`,
           strategies: symbol.trade.strategies || []
