@@ -162,9 +162,9 @@ module.exports = class OrderExecutor {
     );
   }
 
-  executeOrder(exchangeName, order) {
+  executeOrder(exchangeName, order, fast) {
     return new Promise(async resolve => {
-      await this.triggerOrder(resolve, exchangeName, order);
+      await this.triggerOrder(resolve, exchangeName, order, 0, fast);
     });
   }
 
@@ -194,7 +194,7 @@ module.exports = class OrderExecutor {
     }
   }
 
-  async triggerOrder(resolve, exchangeName, order, retry = 0) {
+  async triggerOrder(resolve, exchangeName, order, retry = 0, fast) {
     if (retry > this.systemUtil.getConfig('order.retry', 4)) {
       this.logger.error(`Retry (${retry}) creating order reached: ${JSON.stringify(order)}`);
       resolve();
@@ -225,7 +225,7 @@ module.exports = class OrderExecutor {
 
     let exchangeOrder;
     try {
-      exchangeOrder = await exchange.order(order);
+      exchangeOrder = await exchange.order(order, fast);
     } catch (err) {
       this.logger.error(`Order create canceled:${JSON.stringify(order)} - ${JSON.stringify(String(err))}`);
 
@@ -253,16 +253,16 @@ module.exports = class OrderExecutor {
       setTimeout(async () => {
         const retryOrder = Order.createRetryOrder(order);
 
-        await this.triggerOrder(resolve, exchangeName, retryOrder, ++retry);
+        await this.triggerOrder(resolve, exchangeName, retryOrder, ++retry, fast);
       }, this.systemUtil.getConfig('order.retry_ms', 1500));
 
       return;
     }
 
     this.logger.info(
-      `Order created: ${JSON.stringify([exchangeOrder.id, exchangeName, exchangeOrder.symbol, order, exchangeOrder])}`
+      `${new Date().getTime()} *** Order created: ${JSON.stringify([exchangeOrder.id, exchangeName, exchangeOrder.symbol, order, exchangeOrder])}`
     );
-    console.log(`Order created: ${JSON.stringify([exchangeOrder.id, exchangeName, exchangeOrder.symbol])}`);
+    console.log(`${new Date().getTime()} *** Order created: ${JSON.stringify([exchangeOrder.id, exchangeName, exchangeOrder.symbol])}`);
 
     resolve(exchangeOrder);
   }
