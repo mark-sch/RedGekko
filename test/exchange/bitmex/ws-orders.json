@@ -135,7 +135,7 @@
     "cumQty": 0,
     "avgPx": null,
     "multiLegReportingType": "SingleSecurity",
-    "text": "Canceled: Order had execInst of ParticipateDoNotInitiate\nPowered by your awesome crypto-bot watchdog",
+    "text": "Canceled: Order had execInst of ParticipateDoNotInitiate\nPowered by RedGekko",
     "transactTime": "2018-12-09T09:29:00.883Z",
     "timestamp": "2018-12-09T09:29:00.883Z"
   },

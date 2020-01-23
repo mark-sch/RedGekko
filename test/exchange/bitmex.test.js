@@ -72,7 +72,7 @@ describe('#bitmex exchange implementation', function() {
       symbol: 'BTCUSD',
       orderQty: 0.5,
       ordType: 'Limit',
-      text: 'Powered by your awesome crypto-bot watchdog',
+      text: 'Powered by RedGekko',
       execInst: 'ParticipateDoNotInitiate',
       price: 1337,
       side: 'Buy',
@@ -88,7 +88,7 @@ describe('#bitmex exchange implementation', function() {
       symbol: 'BTCUSD',
       orderQty: 0.5,
       ordType: 'Limit',
-      text: 'Powered by your awesome crypto-bot watchdog',
+      text: 'Powered by RedGekko',
       execInst: 'ParticipateDoNotInitiate',
       price: 1337,
       side: 'Sell',
@@ -104,7 +104,7 @@ describe('#bitmex exchange implementation', function() {
       symbol: 'BTCUSD',
       orderQty: 0.5,
       ordType: 'Stop',
-      text: 'Powered by your awesome crypto-bot watchdog',
+      text: 'Powered by RedGekko',
       execInst: 'Close,LastPrice',
       stopPx: 1337,
       side: 'Buy',
@@ -127,7 +127,7 @@ describe('#bitmex exchange implementation', function() {
       symbol: 'BTCUSD',
       orderQty: 0.5,
       ordType: 'Stop',
-      text: 'Powered by your awesome crypto-bot watchdog',
+      text: 'Powered by RedGekko',
       execInst: 'Close,LastPrice',
       stopPx: 1337,
       side: 'Sell',
@@ -227,7 +227,7 @@ describe('#bitmex exchange implementation', function() {
     assert.equal(myOptions.method, 'PUT');
     assert.equal(
       myOptions.body,
-      '{"orderID":"0815foobar","text":"Powered by your awesome crypto-bot watchdog","price":null}'
+      '{"orderID":"0815foobar","text":"Powered by RedGekko","price":null}'
     );
     assert.equal(myOptions.url, 'https://www.bitmex.com/api/v1/order');
 
@@ -333,7 +333,7 @@ describe('#bitmex exchange implementation', function() {
     const order = await bitmex.cancelOrder('0815foobar', Order.createPriceUpdateOrder('0815foobar', 'foobar'));
 
     assert.equal(myOptions.method, 'DELETE');
-    assert.equal(myOptions.body, '{"orderID":"0815foobar","text":"Powered by your awesome crypto-bot watchdog"}');
+    assert.equal(myOptions.body, '{"orderID":"0815foobar","text":"Powered by RedGekko"}');
     assert.equal(myOptions.url, 'https://www.bitmex.com/api/v1/order');
 
     assert.equal(Object.keys(myOptions.headers).includes('api-expires'), true);
@@ -376,7 +376,7 @@ describe('#bitmex exchange implementation', function() {
     const orders = await bitmex.cancelAll('BTCUSD');
 
     assert.equal(myOptions.method, 'DELETE');
-    assert.equal(myOptions.body, '{"symbol":"BTCUSD","text":"Powered by your awesome crypto-bot watchdog"}');
+    assert.equal(myOptions.body, '{"symbol":"BTCUSD","text":"Powered by RedGekko"}');
     assert.equal(myOptions.url, 'https://www.bitmex.com/api/v1/order/all');
 
     assert.equal(Object.keys(myOptions.headers).includes('api-expires'), true);
@@ -431,7 +431,7 @@ describe('#bitmex exchange implementation', function() {
       symbol: 'BTCUSD',
       orderQty: 12,
       ordType: 'Market',
-      text: 'Powered by your awesome crypto-bot watchdog',
+      text: 'Powered by RedGekko',
       side: 'Buy'
     });
 
@@ -477,7 +477,7 @@ describe('#bitmex exchange implementation', function() {
       symbol: 'BTCUSD',
       orderQty: 12,
       ordType: 'Market',
-      text: 'Powered by your awesome crypto-bot watchdog',
+      text: 'Powered by RedGekko',
       side: 'Buy'
     });
 

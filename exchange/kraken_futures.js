@@ -1169,6 +1169,6 @@ module.exports = class Kraken {
   }
 
   isInverseSymbol(symbol) {
-    return true;
+    return false;
   }
 };
