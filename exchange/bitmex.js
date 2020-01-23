@@ -582,7 +582,7 @@ module.exports = class Bitmex {
     return 'bitmex';
   }
 
-  order(order) {
+  order(order, fast) {
     const data = Bitmex.createOrderBody(order);
 
     const verb = 'POST';
@@ -607,8 +607,11 @@ module.exports = class Bitmex {
     const me = this;
     return new Promise(async (resolve, reject) => {
       // update leverage for pair position
-      await this.updateLeverage(order.symbol);
+      if (fast == undefined || fast == false) {
+        await this.updateLeverage(order.symbol);
+      }
 
+      console.log(new Date().getTime() + ' *** bitmex: before order execution');
       const result = await this.requestClient.executeRequestRetry(
         {
           headers: headers,
@@ -622,6 +625,7 @@ module.exports = class Bitmex {
         this.retryOverloadMs,
         this.retryOverloadLimit
       );
+      console.log(new Date().getTime() + ` *** ${this.getName()}: order executed`);
 
       const { error } = result;
       const { body } = result;
@@ -761,7 +765,7 @@ module.exports = class Bitmex {
     const expires = new Date().getTime() + 60 * 1000; // 1 min in the future
     const data = {
       orderID: id,
-      text: 'Powered by your awesome crypto-bot watchdog'
+      text: 'Powered by RedGekko'
     };
 
     const postBody = JSON.stringify(data);
@@ -831,7 +835,7 @@ module.exports = class Bitmex {
     const expires = new Date().getTime() + 60 * 1000; // 1 min in the future
     const data = {
       symbol: symbol,
-      text: 'Powered by your awesome crypto-bot watchdog'
+      text: 'Powered by RedGekko'
     };
 
     const postBody = JSON.stringify(data);
@@ -1004,7 +1008,7 @@ module.exports = class Bitmex {
     const expires = new Date().getTime() + 60 * 1000; // 1 min in the future
     const data = {
       orderID: id,
-      text: 'Powered by your awesome crypto-bot watchdog'
+      text: 'Powered by RedGekko'
     };
 
     if (order.amount) {
@@ -1232,7 +1236,7 @@ module.exports = class Bitmex {
       symbol: order.getSymbol(),
       orderQty: order.getAmount(),
       ordType: orderType,
-      text: 'Powered by your awesome crypto-bot watchdog'
+      text: 'Powered by RedGekko'
     };
 
     const execInst = [];
