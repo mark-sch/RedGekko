@@ -207,7 +207,7 @@ module.exports = {
       return createOrderListener;
     }
 
-    return (createOrderListener = new CreateOrderListener(this.getExchangeManager(), this.getLogger()));
+    return (createOrderListener = new CreateOrderListener(this.getTickers(), this.getOrderExecutor(), this.getExchangeManager(), this.getLogger()));
   },
 
   getTickListener: function() {
