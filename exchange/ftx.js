@@ -362,8 +362,11 @@ module.exports = class Ftx {
     return 'ftx';
   }
 
-  async order(order) {
-    return this.ccxtExchangeOrder.createOrder(order);
+  async order(order, fast) {
+    console.log(new Date().getTime() + ` *** ${this.getName()}: before order execution`);
+    let myorder = await this.ccxtExchangeOrder.createOrder(order);
+    console.log(new Date().getTime() + ` *** ${this.getName()}: order executed`);
+    return myorder;
   }
 
   /**
