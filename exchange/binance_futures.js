@@ -190,7 +190,10 @@ module.exports = class BinanceFutures {
   }
 
   async order(order) {
-    return this.ccxtExchangeOrder.createOrder(order);
+    console.log(new Date().getTime() + ' *** binance_futures: before order execution');
+    let myorder = await this.ccxtExchangeOrder.createOrder(order);
+    console.log(new Date().getTime() + ' *** binance_futures: order executed');
+    return myorder;
   }
 
   async cancelOrder(id) {
