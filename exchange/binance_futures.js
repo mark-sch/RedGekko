@@ -254,6 +254,7 @@ module.exports = class BinanceFutures {
       response = await this.ccxtClient.fapiPrivateGetPositionRisk();
     } catch (e) {
       this.logger.error(`Binance Futures: error getting positions:${e}`);
+      console.log(`Binance Futures: error getting positions:${e}`);
       return;
     }
 

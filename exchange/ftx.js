@@ -168,7 +168,7 @@ module.exports = class Ftx {
             else {
               me.ConnectionHealth = "Bad";
             }
-            //console.log(me.getName(), 'PingPong delay:', this.pingPongDelay + 'ms.', this.ConnectionHealth);
+            //console.log(me.getName(), 'PingPong delay:', me.pingPongDelay + 'ms.', me.ConnectionHealth);
             clearTimeout(me.pongTimer);
         }
         if (data.type === 'subscribed') {
@@ -216,7 +216,7 @@ module.exports = class Ftx {
                   data.data.ask
                 ))
               ),
-              this
+              me
             );
           }
         }
