@@ -628,7 +628,7 @@ module.exports = class Bitmex {
       );
       let dtOrderFinished = new Date().getTime();
       this.order.execDuration = dtOrderFinished - dtOrderEntry;
-      console.log(dtOrderFinished + ` *** ${this.getName()}: order executed. Duration: ${this.order.execDuration}`);
+      console.log(dtOrderFinished + ` *** ${this.getName()}: order executed. Duration: ${this.order.execDuration}ms`);
 
       const { error } = result;
       const { body } = result;

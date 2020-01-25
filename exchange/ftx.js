@@ -370,7 +370,7 @@ module.exports = class Ftx {
     
     let dtOrderFinished = new Date().getTime();
     this.order.execDuration = dtOrderFinished - dtOrderEntry;
-    console.log(dtOrderFinished + ` *** ${this.getName()}: order executed. Duration: ${this.order.execDuration}`);
+    console.log(dtOrderFinished + ` *** ${this.getName()}: order executed. Duration: ${this.order.execDuration}ms`);
     return myorder;
   }
 
