@@ -190,9 +190,14 @@ module.exports = class BinanceFutures {
   }
 
   async order(order, fast) {
-    console.log(new Date().getTime() + ` *** ${this.getName()}: before order execution`);
+    let dtOrderEntry = new Date().getTime();
+    console.log(dtOrderEntry + ` *** ${this.getName()}: before order execution`);
+    
     let myorder = await this.ccxtExchangeOrder.createOrder(order);
-    console.log(new Date().getTime() + ` *** ${this.getName()}: order executed`);
+    
+    let dtOrderFinished = new Date().getTime();
+    this.order.execDuration = dtOrderFinished - dtOrderEntry;
+    console.log(dtOrderFinished + ` *** ${this.getName()}: order executed. Duration: ${this.order.execDuration}`);
     return myorder;
   }
 

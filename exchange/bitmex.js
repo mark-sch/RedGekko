@@ -611,7 +611,8 @@ module.exports = class Bitmex {
         await this.updateLeverage(order.symbol);
       }
 
-      console.log(new Date().getTime() + ` *** ${this.getName()}: before order execution`);
+      let dtOrderEntry = new Date().getTime();
+      console.log(dtOrderEntry + ` *** ${this.getName()}: before order execution`);
       const result = await this.requestClient.executeRequestRetry(
         {
           headers: headers,
@@ -625,7 +626,9 @@ module.exports = class Bitmex {
         this.retryOverloadMs,
         this.retryOverloadLimit
       );
-      console.log(new Date().getTime() + ` *** ${this.getName()}: order executed`);
+      let dtOrderFinished = new Date().getTime();
+      this.order.execDuration = dtOrderFinished - dtOrderEntry;
+      console.log(dtOrderFinished + ` *** ${this.getName()}: order executed. Duration: ${this.order.execDuration}`);
 
       const { error } = result;
       const { body } = result;

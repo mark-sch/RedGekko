@@ -161,12 +161,12 @@ module.exports = class Ftx {
         const data = JSON.parse(event.data);
 
         if (data && data.type === 'pong') {
-            this.pingPongDelay = new Date().getTime() - me.pingStart;
-            if (this.pingPongDelay < this.pingPongSatisfaction) {
-              this.ConnectionHealth = "Good";
+            me.pingPongDelay = new Date().getTime() - me.pingStart;
+            if (me.pingPongDelay < me.pingPongSatisfaction) {
+              me.ConnectionHealth = "Good";
             }
             else {
-              this.ConnectionHealth = "Bad";
+              me.ConnectionHealth = "Bad";
             }
             //console.log(me.getName(), 'PingPong delay:', this.pingPongDelay + 'ms.', this.ConnectionHealth);
             clearTimeout(me.pongTimer);
@@ -363,9 +363,14 @@ module.exports = class Ftx {
   }
 
   async order(order, fast) {
-    console.log(new Date().getTime() + ` *** ${this.getName()}: before order execution`);
+    let dtOrderEntry = new Date().getTime();
+    console.log(dtOrderEntry + ` *** ${this.getName()}: before order execution`);
+    
     let myorder = await this.ccxtExchangeOrder.createOrder(order);
-    console.log(new Date().getTime() + ` *** ${this.getName()}: order executed`);
+    
+    let dtOrderFinished = new Date().getTime();
+    this.order.execDuration = dtOrderFinished - dtOrderEntry;
+    console.log(dtOrderFinished + ` *** ${this.getName()}: order executed. Duration: ${this.order.execDuration}`);
     return myorder;
   }
 

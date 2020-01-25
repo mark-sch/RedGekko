@@ -25,7 +25,6 @@ module.exports = class CreateOrderListener {
       opportunity.hPair.order.signal = "none";
       opportunity.hPair.order.hedgeCompleted = true;
       console.log('*** Creating hedged orders completed successfully!');
-
       return;
     }
     
@@ -64,21 +63,32 @@ module.exports = class CreateOrderListener {
   async onCreateHedgedOrders(opportunity) {
     let longPair = opportunity.hPair.long.pair.split('#');
     let shortPair = opportunity.hPair.short.pair.split('#');
+    
     if (longPair.length !== 2 && shortPair.length !== 2) {
       console.log('*** Create Hedged Orders: Invalid order pairs!');
+      return;
+    }
+
+    let exchange1 =  this.exchangeManager.get(longPair[0]);
+    let exchange2 =  this.exchangeManager.get(shortPair[0]);
+    if (exchange1.ConnectionHealth != "Good" || exchange2.ConnectionHealth != "Good") {
+      console.log("*** ATTENTION: Bad exchange connectivity, SKIPPING CREATE order!", exchange1.getName(), exchange1.pingPongDelay + 'ms', exchange1.ConnectionHealth, '/ ', exchange2.getName(), exchange2.pingPongDelay + 'ms', exchange2.ConnectionHealth);
+      setTimeout(() => { opportunity.hPair.order.signal = "none" }, 5000);
       return;
     }
 
     this.logger.debug(new Date().getTime() + ' *** Creating Hedged Orders:', opportunity.hPair.long.pair, opportunity.hPair.short.pair);
     console.log(new Date().getTime() + ' *** Creating Hedged Orders:', opportunity.hPair.long.pair, opportunity.hPair.short.pair);
 
+    let cfgAmount = opportunity.hPair.order.amount;
+
     // create order
     try {
-      //let amount = opportunity.hPair.order.inverse ? 50 * -1 : 50;
-      //amount = amount / opportunity.hPair.order.long.foundPrice
-      let amount = opportunity.hPair.order.inverse ? -1 : 1;
+      let amount = opportunity.hPair.order.inverse ? cfgAmount * -1 : cfgAmount;
       opportunity.hPair.order.long.status = 'Opening';
-      this.fastHedgedOrders.createMarketOrder(opportunity.hPair.long.pair, { amount: amount, price: opportunity.hPair.order.long.foundPrice });
+      let order = { amount: amount, price: opportunity.hPair.order.long.foundPrice };
+      this.fastHedgedOrders.createMarketOrder(opportunity.hPair.long.pair, order);
+      opportunity.hPair.order.execDurationCreate = order.execDuration;
     } catch (e) {
       console.log('Error creating first order, aborting: ', e);
       return;
@@ -86,8 +96,7 @@ module.exports = class CreateOrderListener {
 
     // create hedged order
     try {
-      //let amount = opportunity.hPair.order.inverse ? -50 * -1 : -50;
-      let amount = opportunity.hPair.order.inverse ? 1 : -1;
+      let amount = opportunity.hPair.order.inverse ? cfgAmount : cfgAmount * -1;
       opportunity.hPair.order.short.status = 'Opening';
       this.fastHedgedOrders.createMarketOrder(opportunity.hPair.short.pair, { amount: amount, price: opportunity.hPair.order.short.foundPrice });
     } catch (e) {
@@ -105,8 +114,17 @@ module.exports = class CreateOrderListener {
   async onCloseHedgedOrders(opportunity) {
     let longPair = opportunity.hPair.long.pair.split('#');
     let shortPair = opportunity.hPair.short.pair.split('#');
+    
     if (longPair.length !== 2 && shortPair.length !== 2) {
       console.log('*** Close Hedged Orders: Invalid order pairs!');
+      return;
+    }
+
+    let exchange1 =  this.exchangeManager.get(longPair[0]);
+    let exchange2 =  this.exchangeManager.get(shortPair[0]);
+    if (exchange1.ConnectionHealth != "Good" && exchange2.ConnectionHealth != "Good") {
+      console.log("*** ATTENTION: Bad exchange connectivity, SKIPPING CLOSE order!", exchange1.getName(), exchange1.pingPongDelay + 'ms', exchange1.ConnectionHealth, '/ ', exchange2.getName(), exchange2.pingPongDelay + 'ms', exchange2.ConnectionHealth);
+      setTimeout(() => { opportunity.hPair.order.signal = "none" }, 5000);
       return;
     }
 
@@ -137,13 +155,6 @@ module.exports = class CreateOrderListener {
     this.logger.debug(`${new Date().getTime()} *** Both hedged order closings fired`);
     console.log(`${new Date().getTime()} *** Both hedged order closings fired`);
     setTimeout(me.syncAndCheckCloseHedge, 1000, opportunity, 1);
-
-    /*
-    setTimeout(() => {
-      opportunity.hPair.order.signal = "none";
-      opportunity.hPair.order.hedgeCloseCompleted = true;
-    }, 1000); //just for testing !!!!!!
-    */
   }
 
 
