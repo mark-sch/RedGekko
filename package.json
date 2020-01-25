@@ -1,19 +1,27 @@
 {
-  "name": "crypto-trading-bot",
-  "version": "0.0.0",
-  "author": "Daniel Espendiller",
-  "bugs": "https://github.com/Haehnchen/crypto-trading-bot/issues",
-  "contributors": [
-    {
-      "email": "daniel@espendiller.net",
-      "name": "Daniel Espendiller",
-      "url": "http://espend.de/"
-    },
-    {
-      "email": "phuc@nguyenminhphuc.com",
-      "name": "Phuc Nguyen Minh",
-      "url": "https://nguyenminhphuc.com/"
-    }
+  "name": "RedGekko",
+  "version": "2020.1.56",
+  "bugs": "https://github.com/mark-sch/RedGekko",
+  "description": "Node.js crypto trading bot. Spot and derivative markets: Binance, Bybit, Ftx, Bitmex ...",
+  "keywords": [
+    "trading",
+    "bot",
+    "algotrading",
+    "bitcoin",
+    "crypto",
+    "TA",
+    "finance",
+    "cryptocurrency",
+    "exchange",
+    "trading-bot",
+    "trading-strategies",
+    "websocket",
+    "nodejs",
+    "bitfinex",
+    "bitmex",
+    "binance",
+    "tradingview",
+    "javascript"
   ],
   "dependencies": {
     "@tensorflow/tfjs-node": "^1.5.1",
@@ -54,25 +62,8 @@
     "zero-fill": "^2.2.3"
   },
   "engines": {
-    "node": "^8.3.0 || ^10"
+    "node": "^8.3.0 || ^10 || ^12.12"
   },
-  "homepage": "https://github.com/coinbase/coinbase-pro-node",
-  "keywords": [
-    "cryptocurrency",
-    "crypto",
-    "exchange",
-    "trading",
-    "trading-bot",
-    "trading-strategies",
-    "websocket",
-    "nodejs",
-    "bitfinex",
-    "bitmex",
-    "binance",
-    "tradingview",
-    "bot",
-    "javascript"
-  ],
   "license": "MIT",
   "main": "index.js",
   "repository": {

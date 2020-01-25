@@ -113,7 +113,7 @@ module.exports = class Trade {
 
     eventEmitter.on('ticker', async function(tickerEvent) {
       tickers.set(tickerEvent.ticker);
-      //me.tickerDatabaseListener.onTicker(tickerEvent);
+      me.tickerDatabaseListener.onTicker(tickerEvent);
     });
 
     eventEmitter.on('orderbook', function(orderbookEvent) {
