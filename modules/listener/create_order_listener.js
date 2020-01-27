@@ -87,8 +87,10 @@ module.exports = class CreateOrderListener {
       let amount = opportunity.hPair.order.inverse ? cfgAmount * -1 : cfgAmount;
       opportunity.hPair.order.long.status = 'Opening';
       let order = { amount: amount, price: opportunity.hPair.order.long.foundPrice };
-      this.fastHedgedOrders.createMarketOrder(opportunity.hPair.long.pair, order);
-      opportunity.hPair.order.execDurationCreate = order.execDuration;
+      this.fastHedgedOrders.createMarketOrder(opportunity.hPair.long.pair, order).then(result => {
+        opportunity.hPair.order.long.idCreate = result.id;
+        opportunity.hPair.order.long.execDurationCreate = result.execDuration;
+      });
     } catch (e) {
       console.log('Error creating first order, aborting: ', e);
       return;
@@ -98,7 +100,10 @@ module.exports = class CreateOrderListener {
     try {
       let amount = opportunity.hPair.order.inverse ? cfgAmount : cfgAmount * -1;
       opportunity.hPair.order.short.status = 'Opening';
-      this.fastHedgedOrders.createMarketOrder(opportunity.hPair.short.pair, { amount: amount, price: opportunity.hPair.order.short.foundPrice });
+      this.fastHedgedOrders.createMarketOrder(opportunity.hPair.short.pair, { amount: amount, price: opportunity.hPair.order.short.foundPrice }).then(result => {
+        opportunity.hPair.order.short.idCreate = result.id;
+        opportunity.hPair.order.short.execDurationCreate = result.execDuration;
+      });
     } catch (e) {
       console.log('Error creating second order, aborting: ', e);
       // todo: cancel first order
@@ -135,7 +140,10 @@ module.exports = class CreateOrderListener {
     try {
       let amount = opportunity.hPair.order.long.amount * -1;
       opportunity.hPair.order.long.status = 'Closing';
-      this.fastHedgedOrders.createMarketOrder(opportunity.hPair.long.pair, { amount: amount, price: 1 });
+      this.fastHedgedOrders.createMarketOrder(opportunity.hPair.long.pair, { amount: amount, price: 1 }).then(result => {
+        opportunity.hPair.order.long.idClose = result.id;
+        opportunity.hPair.order.long.execDurationClose = result.execDuration;
+      });
     } catch (e) {
       console.log('Error closing first order, aborting: ', e);
       return;
@@ -145,7 +153,10 @@ module.exports = class CreateOrderListener {
     try {
       let amount = opportunity.hPair.order.short.amount * -1;
       opportunity.hPair.order.short.status = 'Closing';
-      this.fastHedgedOrders.createMarketOrder(opportunity.hPair.short.pair, { amount: amount, price: 1 });
+      this.fastHedgedOrders.createMarketOrder(opportunity.hPair.short.pair, { amount: amount, price: 1 }).then(result => {
+        opportunity.hPair.order.short.idClose = result.id;
+        opportunity.hPair.order.short.execDurationClose = result.execDuration;
+      });
     } catch (e) {
       console.log('Error closing second order, aborting: ', e);
       // todo: cancel first order
