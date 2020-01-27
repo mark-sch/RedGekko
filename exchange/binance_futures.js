@@ -1,4 +1,6 @@
 const WebSocket = require('ws');
+const querystring = require('querystring');
+const crypto = require('crypto');
 const ccxt = require('ccxt');
 const moment = require('moment');
 const Ticker = require('./../dict/ticker');
@@ -11,6 +13,7 @@ const CcxtExchangeOrder = require('./ccxt/ccxt_exchange_order');
 module.exports = class BinanceFutures {
   constructor(eventEmitter, requestClient, candlestickResample, logger, queue, candleImporter) {
     this.eventEmitter = eventEmitter;
+    this.requestClient = requestClient;
     this.logger = logger;
     this.queue = queue;
     this.candleImporter = candleImporter;
@@ -30,6 +33,11 @@ module.exports = class BinanceFutures {
     const { eventEmitter } = this;
     const { logger } = this;
     this.exchange = null;
+
+    if (config.key && config.secret && config.key.length > 0 && config.secret.length > 0) {
+      this.apiKey = config.key;
+      this.apiSecret = config.secret;
+    }
 
     const ccxtClient = (this.ccxtClient = new ccxt.binance({
       urls :{
@@ -189,9 +197,61 @@ module.exports = class BinanceFutures {
     return 'binance_futures';
   }
 
+  async fastOrder(order, resolve) {
+    const query = {
+      symbol: order.getSymbol(),
+      side: order.isShort() ? 'SELL' : 'BUY',
+      quantity: order.getAmount(),
+      type: order.getType().toUpperCase(),
+      timestamp: new Date().getTime()
+    };
+
+    const verb = 'POST';
+    const path = '/fapi/v1/order';
+    var strQuery = querystring.stringify(query);
+    const signature = crypto
+      .createHmac('sha256', this.apiSecret)
+      .update(strQuery)
+      .digest('hex');
+    strQuery += '&' + 'signature=' + signature;
+
+    const headers = {
+      'X-MBX-APIKEY': this.apiKey,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    };
+
+    let dtOrderEntry = new Date().getTime();
+    console.log(dtOrderEntry + ` *** ${this.getName()}: before order execution`);
+    const result = await this.requestClient.executeRequest(
+      {
+        headers: headers,
+        url: this.getBaseUrl() + path,
+        body: strQuery,
+        method: verb
+      },
+      result => {
+        return result && result.response && result.response.statusCode >= 500;
+      }
+    );
+
+    var myorder = JSON.parse(result.response.body);
+
+    let dtOrderFinished = new Date().getTime();
+    myorder.execDuration = dtOrderFinished - dtOrderEntry;
+    myorder.id = myorder.orderId;
+    console.log(dtOrderFinished + ` *** ${this.getName()}: order executed. Duration: ${myorder.execDuration}ms`);
+    resolve(myorder);
+  }
+
   async order(order, fast) {
     let dtOrderEntry = new Date().getTime();
     console.log(dtOrderEntry + ` *** ${this.getName()}: before order execution`);
+
+    if (fast) {
+      return new Promise(resolve => {
+        this.fastOrder(order, resolve);
+      });
+    }
     
     let myorder = await this.ccxtExchangeOrder.createOrder(order);
     
