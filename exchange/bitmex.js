@@ -115,9 +115,6 @@ module.exports = class Bitmex {
     const ws = new WebSocket('wss://stream.binance.com:9443/ws');
 
     ws.onopen = function() {
-      me.logger.info('Binance: Connection opened.');
-      console.log('Binance: Connection opened.');
-
       me.pingTimer = setInterval(() => {me._ping(ws)}, me.pingInterval);
     }
     ws.onmessage = async function(event) {
@@ -627,8 +624,8 @@ module.exports = class Bitmex {
         this.retryOverloadLimit
       );
       let dtOrderFinished = new Date().getTime();
-      this.order.execDuration = dtOrderFinished - dtOrderEntry;
-      console.log(dtOrderFinished + ` *** ${this.getName()}: order executed. Duration: ${this.order.execDuration}ms`);
+      result.execDuration = dtOrderFinished - dtOrderEntry;
+      console.log(dtOrderFinished + ` *** ${this.getName()}: order executed. Duration: ${result.execDuration}ms`);
 
       const { error } = result;
       const { body } = result;
@@ -949,6 +946,62 @@ module.exports = class Bitmex {
 
     me.logger.debug('Bitmex: Positions via API updated');
     me.fullPositionsUpdate(JSON.parse(body));
+  }
+
+  async syncTradesViaRestApi(orderId, symbol) {
+    const verb = 'GET';
+    const path = `/api/v1/order?${querystring.stringify({ filter: JSON.stringify({ "orderID": orderId }) })}`;
+    const expires = new Date().getTime() + 60 * 1000; // 1 min in the future
+    const signature = crypto
+      .createHmac('sha256', this.apiSecret)
+      .update(verb + path + expires)
+      .digest('hex');
+
+    const headers = {
+      'content-type': 'application/json',
+      Accept: 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+      'api-expires': expires,
+      'api-key': this.apiKey,
+      'api-signature': signature
+    };
+
+    const me = this;
+
+    const result = await this.requestClient.executeRequestRetry(
+      {
+        headers: headers,
+        url: this.getBaseUrl() + path,
+        method: verb
+      },
+      result => {
+        return result && result.response && result.response.statusCode === 503;
+      },
+      this.retryOverloadMs,
+      this.retryOverloadLimit
+    );
+
+    const { error } = result;
+    const { response } = result;
+    const { body } = result;
+
+    if (error || !response || response.statusCode !== 200) {
+      me.logger.error(`Bitmex: Invalid trades sync:${JSON.stringify({ error: error, body: body })}`);
+      console.log(`Bitmex: Invalid trades sync:${JSON.stringify({ error: error, body: body })}`);
+      return;
+    }
+
+    var _trade = JSON.parse(body).filter(trade => trade.orderID && trade.orderID == orderId);
+    if (_trade.length == 1) {
+      _trade = {
+        symbol: _trade[0].symbol,
+        side: _trade[0].side.toUpperCase(),
+        price: Number(_trade[0].avgPx),
+        amount: _trade[0].side.toUpperCase() == 'BUY' ? Number(_trade[0].orderQty) : Number(_trade[0].orderQty) * -1
+      }
+    } 
+    
+    return _trade;
   }
 
   /**

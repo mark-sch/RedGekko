@@ -369,8 +369,8 @@ module.exports = class Ftx {
     let myorder = await this.ccxtExchangeOrder.createOrder(order);
     
     let dtOrderFinished = new Date().getTime();
-    this.order.execDuration = dtOrderFinished - dtOrderEntry;
-    console.log(dtOrderFinished + ` *** ${this.getName()}: order executed. Duration: ${this.order.execDuration}ms`);
+    myorder.execDuration = dtOrderFinished - dtOrderEntry;
+    console.log(dtOrderFinished + ` *** ${this.getName()}: order executed. Duration: ${myorder.execDuration}ms`);
     return myorder;
   }
 
@@ -448,6 +448,29 @@ module.exports = class Ftx {
 
     const positions = response.result.filter(position => position.size > 0);
     this.fullPositionsUpdate(Ftx.createPositions(positions));
+  }
+
+  async syncTradesViaRestApi(orderId, symbol) {
+    let response;
+    try {
+      response = await this.exchange.fetchMyTrades(symbol, undefined, 2, { order: String(orderId) });
+    } catch (e) {
+      this.logger.error(`Ftx: error getting trades:${e}`);
+      console.log(`Ftx: error getting trades:${e}`);
+      return;
+    }
+
+    var _trade = response.filter(trade => trade.order && Number(trade.order) == Number(orderId));
+    if (_trade.length == 1) {
+      _trade = {
+        symbol: _trade[0].symbol,
+        side: _trade[0].side.toUpperCase(),
+        price: Number(_trade[0].price),
+        amount: _trade[0].side.toUpperCase() == 'BUY' ? Number(_trade[0].amount) : Number(_trade[0].amount) * -1
+      }
+    } 
+    
+    return _trade;
   }
 
   isInverseSymbol(symbol) {

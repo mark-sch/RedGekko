@@ -66,7 +66,7 @@ module.exports = class BinanceFutures {
         await ccxtClient.fetchMarkets();
         await me.ccxtExchangeOrder.syncOrders();
         await me.syncPositionViaRestApi();
-      }, 1000);
+      }, 1000 * 30);
 
       setTimeout(async () => {
         await me.initUserWebsocket();
@@ -196,8 +196,8 @@ module.exports = class BinanceFutures {
     let myorder = await this.ccxtExchangeOrder.createOrder(order);
     
     let dtOrderFinished = new Date().getTime();
-    this.order.execDuration = dtOrderFinished - dtOrderEntry;
-    console.log(dtOrderFinished + ` *** ${this.getName()}: order executed. Duration: ${this.order.execDuration}ms`);
+    myorder.execDuration = dtOrderFinished - dtOrderEntry;
+    console.log(dtOrderFinished + ` *** ${this.getName()}: order executed. Duration: ${myorder.execDuration}ms`);
     return myorder;
   }
 
@@ -264,6 +264,29 @@ module.exports = class BinanceFutures {
     this.logger.debug(`Binance Futures: positions updates: ${positions.length}`);
   }
 
+  async syncTradesViaRestApi(orderId, symbol) {
+    let response;
+    try {
+      response = await this.ccxtClient.fapiPrivateGetUserTrades();
+    } catch (e) {
+      this.logger.error(`Binance Futures: error getting trades:${e}`);
+      console.log(`Binance Futures: error getting trades:${e}`);
+      return;
+    }
+
+    var _trade = response.filter(trade => trade.orderId && Number(trade.orderId) == Number(orderId));
+    if (_trade.length == 1) {
+      _trade = {
+        symbol: _trade[0].symbol,
+        side: _trade[0].side.toUpperCase(),
+        price: Number(_trade[0].price),
+        amount: _trade[0].side.toUpperCase() == 'BUY' ? Number(_trade[0].qty) : Number(_trade[0].qty) * -1
+      }
+    } 
+    
+    return _trade;
+  }
+
   isInverseSymbol(symbol) {
     return false;
   }
@@ -285,7 +308,7 @@ module.exports = class BinanceFutures {
     };
 
     ws.onopen = function() {
-      me.logger.info('Binance Futures: Public stream opened.');
+      me.logger.info(me.getName() + ': Public stream opened.');
       console.log(me.getName() + ': Connection opened.');
 
       symbols.forEach(symbol => {
