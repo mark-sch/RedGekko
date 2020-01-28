@@ -1,6 +1,6 @@
 {
   "name": "RedGekko",
-  "version": "2020.1.56",
+  "version": "2020.1.60",
   "bugs": "https://github.com/mark-sch/RedGekko",
   "description": "Node.js crypto trading bot. Spot and derivative markets: Binance, Bybit, Ftx, Bitmex ...",
   "keywords": [
@@ -56,7 +56,7 @@
     "technicalindicators": "^3.0.0",
     "telegraf": "^3.36.0",
     "tulind": "^0.8.18",
-    "twig": "^1.14.0",
+    "twig": "^1.13.3",
     "winston": "^3.2.1",
     "ws": "^7.0.0",
     "zero-fill": "^2.2.3"
