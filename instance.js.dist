@@ -2,131 +2,9 @@ var c = module.exports = {}
 
 c.symbols = []
 
-/*
-const InstanceUtil = require('./utils/instance_util');
-c.init = async () => {
-    // Bitmex contracts + examples
-  c.symbols.push(
-    ...(await InstanceUtil.bitmexInit(pair => {
-      // inverse contracts; trade with 1 USD
-      // you can also provide a "capital" instead for trade with fixed BTC or ETH
-      if (['XBTUSD', 'ETHUSD'].includes(pair.symbol) || pair.symbol.startsWith('XBT')) {
-        pair.trade = { currency_capital: 1 };
-        return pair;
-      }
-
-      // trade with 1 ETH on "BTC-ETH" contract, but ignore USD pair
-      if (pair.symbol.startsWith('ETH') && !pair.symbol.includes('USD')) {
-        pair.trade = { capital: 1 };
-        return pair;
-      }
-
-      // trade ADA-BTC; as ADA is low priced BTC; good for testing
-      if (pair.symbol.startsWith('ADA')) {
-        pair.trade = { capital: 1 };
-        return pair;
-      }
-
-      // remove others; we can not use all pairs in one instance; (only on when we not in quarterly contract change window)
-      return undefined;
-    }))
-  );
-
-    // FTX all "perp" / futures contracts
-    c.symbols.push(...(await InstanceUtil.ftxInitPerp()));
-
-    // Binance all USDT pairs
-    c.symbols.push(...(await InstanceUtil.binanceInitUsd()));
-
-    // Binance futures
-    c.symbols.push(...(await InstanceUtil.binanceFuturesInit()));
-
-    // Binance futures or trade with 2 USD
-    c.symbols.push(
-      ...(await InstanceUtil.binanceFuturesInit(pair => {
-        pair.trade = { currency_capital: 2 };
-        return pair;
-      }))
-    );
-};
-*/
-
-/*
-// external loading; lazy init
-c.init = () => {
-    return new Promise(resolve => {
-        require('request')('https://api.binance.com/api/v1/exchangeInfo', (error, response, body) => {
-            let z = [
-                'BNBBTC', 'QKCBTC', 'XVGBTC', 'STRATBTC', 'LUNBTC', 'NANOBTC', 'LOOMBTC', 'VIBEBTC', 'PIVXBTC', 'MCOBTC', 'APPCBTC', 'STORJBTC', 'ELFBTC', 'ENJBTC', 'KNCBTC', 'RVNBTC', 'WANBTC', 'HCBTC',
-            ]
-
-            let trading = {
-                //'BTCUSDT': 50,
-                'TNTBTC': 6622,
-                'ADAUSDT': 300,
-                //'TUSDUSDT': 50,
-                'ONTUSDT': 40,
-            }
-
-            // only USDT pairs, because of its volume and ignore stable coin pairing
-            JSON.parse(body)['symbols']
-		        .filter(p => p['quoteAsset'] === 'USDT' && !['USDC', 'PAX', 'USDS', 'TUSD'].includes(p['baseAsset']) && p['status'].toLowerCase() === 'trading')
-                .forEach(p => {
-                    z.push(p['symbol'])
-                    trading[p['symbol']] = 50
-                }
-            )
-
-            z.forEach((pair) => {
-                let cfg = {
-                    'symbol': pair,
-                    'periods': ['1m', '15m', '1h'],
-                    'exchange': 'binance',
-                    'state': 'watch',
-                    'watchdogs': [
-                        {
-                            'name': 'stoploss_watch',
-                            'stop': 1.5,
-                        }
-                    ],
-                    'strategies': [
-                        {
-                            'strategy': 'cci',
-                            'options': {
-                                'period': '15m'
-                            }
-                        },
-                        {
-                            'strategy': 'obv_pump_dump'
-                        },
-                        {
-                            'strategy': 'macd',
-                            'options': {
-                                'period': '1h'
-                            }
-                        }
-                    ]
-                };
-
-                if (pair in trading) {
-                    cfg['trade'] = {
-                        'capital': trading[pair],
-                    }
-                }
-
-                c.symbols.push(cfg)
-            })
-
-            resolve()
-        })
-    })
-}
-*/
-
 // bitfinex
 let x = [
-    'BTCUSD', 'EOSUSD', 'LTCUSD', 'ETHUSD', 'ETCUSD', 'NEOUSD', 'IOTUSD', 'XMRUSD', 'XRPUSD', 'DSHUSD', 'ZECUSD', 'OMGUSD', 'ETPUSD', 'ZRXUSD', 'BABUSD', 'BSVUSD',
-    'EOSBTC', 'LTCBTC', 'ETHBTC', 'ETCBTC', 'NEOBTC', 'IOTBTC', 'XMRBTC', 'XRPBTC', 'DSHBTC', 'ZECBTC', 'OMGBTC', 'ETPBTC', 'ZRXBTC',
+    //'BTCUSD', 'EOSUSD', 'LTCUSD', 'ETHUSD', 'ETCUSD', 'NEOUSD', 'IOTUSD', 'XMRUSD', 'XRPUSD', 'DSHUSD', 'ZECUSD', 'OMGUSD', 'ZRXUSD', 'BABUSD', 'BSVUSD'
 ]
 
 x.forEach((pair) => {
@@ -155,9 +33,10 @@ x.forEach((pair) => {
     })
 })
 
+
 // bitmex
 let y = [
-    'XBTUSD', 'ETHUSD'
+    //'XBTUSD', 'ETHUSD'
 ]
 
 y.forEach((pair) => {
@@ -167,8 +46,8 @@ y.forEach((pair) => {
         'exchange': 'bitmex',
         'state': 'watch',
         'extra': {
-            'bitmex_leverage': 5,
-            'bitmex_rest_order_sync': 45000
+            'bitmex_leverage': 10
+            //'bitmex_rest_order_sync': 45000
         },
         //'trade': {
         //    'currency_capital': 1 // trade with 1 USD dollar
@@ -185,6 +64,7 @@ y.forEach((pair) => {
         //    }
         //],
         'strategies': [
+            /*
             {
                 'strategy': 'cci',
                 'options': {
@@ -200,55 +80,93 @@ y.forEach((pair) => {
                     'period': '1h'
                 }
             }
+            */
         ]
     })
 })
 
+
 // bitmex testnet
 let l = [
-    'XBTUSD'
+    'XBTUSD', 'ETHUSD'
 ]
 
 l.forEach((pair) => {
     c.symbols.push({
         'symbol': pair,
-        'periods': ['1m', '15m', '1h'],
+        'periods': ['15m'],
         'exchange': 'bitmex_testnet',
         'state': 'watch',
-        'watchdogs': [
-            {
-                'name': 'stoploss',
-                'percent': 3,
-            }
-        ],
         'extra': {
-            'bitmex_leverage': 5,
+            'bitmex_leverage': 10,
         },
         'trade': {
-            'capital': 50,
-        },
-        'strategies': [
-            {
-                'strategy': 'cci',
+            'currency_capital': 5,
+            'strategies': [{
+                'strategy': 'macd',
                 'options': {
                     'period': '15m'
                 }
-            },
-            {
-                'strategy': 'obv_pump_dump'
-            },
-            {
-                'strategy': 'macd',
-                'options': {
-                    'period': '1h'
-                }
-            }
+            }]
+        }
+    })
+})
+
+
+// bybit testnet
+let n = [
+    //'ETHUSD','BTCUSD', 'EOSUSD', 'XRPUSD'
+]
+
+n.forEach((pair) => {
+    c.symbols.push({
+        'symbol': pair,
+        'periods': ['1m', '15m', '1h'],
+        'exchange': 'bybit_testnet',
+        'state': 'watch',
+        'watchdogs': [
+        ],
+        'extra': {
+            'bybit_leverage': 10,
+        },
+        'trade': {
+            'capital': 5,
+        },
+        'strategies': [
         ]
     })
 })
 
+
+
+// bybit
+let v = [
+    'ETHUSD','BTCUSD'
+]
+
+v.forEach((pair) => {
+    c.symbols.push({
+        'symbol': pair,
+        'periods': ['1m'],
+        'exchange': 'bybit',
+        'state': 'watch',
+        'watchdogs': [
+        ],
+        'extra': {
+            'bybit_leverage': 25,
+        },
+        'trade': {
+            'capital': 2
+        },
+        'strategies': [
+        ]
+    })
+})
+
+
+// binance
 let z = [
-    'BTCUSDT', 'XLMUSDT', 'BNBBTC', 'BNBUSDT'
+    //'ETHUSDT', 'BTCUSDT', 'EOSUSDT', 'XRPUSDT'
 ]
 
 z.forEach((pair) => {
@@ -258,21 +176,81 @@ z.forEach((pair) => {
         'exchange': 'binance',
         'state': 'watch',
         'strategies': [
-            {
-                'strategy': 'cci',
-                'options': {
-                    'period': '15m'
-                }
-            },
-            {
-                'strategy': 'obv_pump_dump'
-            },
-            {
+        ]
+    })
+})
+
+
+// binance_futures
+let bf = [
+    //'BTCUSDT', 'ETHUSDT', 'EOSUSDT', 'XRPUSDT', 'LTCUSDT'
+]
+
+bf.forEach((pair) => {
+    c.symbols.push({
+        'symbol': pair,
+        'periods': ['1h'],
+        'exchange': 'binance_futures',
+        'state': 'watch',
+        'strategies': [
+        ]
+    })
+})
+
+
+// binance_futures_testnet
+let bft = [
+    'EOSUSDT', 'XRPUSDT'
+]
+
+bft.forEach((pair) => {
+    c.symbols.push({
+        'symbol': pair,
+        'periods': ['1h'],
+        'exchange': 'binance_futures_testnet',
+        'state': 'watch',
+        'trade': {
+            'currency_capital': 5,
+            'strategies': [{
                 'strategy': 'macd',
                 'options': {
                     'period': '1h'
                 }
-            }
+            }]
+        }
+    })
+})
+
+
+// kraken_futures
+let kf = [
+    //'PI_ETHUSD', 'PI_XBTUSD', 'PI_XRPUSD', 'PI_LTCUSD'
+]
+
+kf.forEach((pair) => {
+    c.symbols.push({
+        'symbol': pair,
+        'periods': ['1m'],
+        'exchange': 'kraken_futures',
+        'state': 'watch',
+        'strategies': [
+        ]
+    })
+})
+
+
+// ftx
+let m = [
+    //'ETH-PERP', 'XRP-PERP', 'EOS-PERP'
+]
+
+m.forEach((pair) => {
+    c.symbols.push({
+        'symbol': pair,
+        'periods': ['1m'],
+        'exchange': 'ftx',
+        'state': 'watch',
+        'strategies': [
         ]
     })
 })

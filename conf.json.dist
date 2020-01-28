@@ -6,16 +6,51 @@
         },
         "bitmex": {
             "key": null,
-            "secret": null
+            "secret": null,
+            "getOrderbook": false,
+            "pingInterval": 10000,
+            "pongTimeout": 1000,
+            "pingPongSatisfaction": 50
+        },
+        "bitmex_testnet": {
+            "key": null,
+            "secret": null,
+            "getOrderbook": true,
+            "pingInterval": 10000,
+            "pongTimeout": 1000,
+            "pingPongSatisfaction": 500
         },
         "binance": {
             "key": null,
             "secret": null,
-            "getOrderbook": false
+            "getOrderbook": false,
+            "pingInterval": 10000,
+            "pongTimeout": 1000,
+            "pingPongSatisfaction": 50
         },
         "binance_futures": {
             "key": null,
-            "secret": null
+            "secret": null,
+            "getOrderbook": false,
+            "pingInterval": 10000,
+            "pongTimeout": 1000,
+            "pingPongSatisfaction": 50
+        },
+        "binance_futures_testnet": {
+            "key": null,
+            "secret": null,
+            "getOrderbook": false,
+            "pingInterval": 10000,
+            "pongTimeout": 3000,
+            "pingPongSatisfaction": 500
+        },
+        "kraken_futures": {
+            "key": null,
+            "secret": null,
+            "getOrderbook": false,
+            "pingInterval": 10000,
+            "pongTimeout": 1000,
+            "pingPongSatisfaction": 50
         },
         "coinbase_pro": {
             "key": null,
@@ -25,16 +60,25 @@
         "bybit": {
             "key": null,
             "secret": null,
-            "getOrderbook": false
+            "getOrderbook": false,
+            "pingInterval": 10000,
+            "pongTimeout": 1000,
+            "pingPongSatisfaction": 50
         },
         "bybit_testnet": {
             "key": null,
             "secret": null,
-            "getOrderbook": true
+            "getOrderbook": false,
+            "pingInterval": 10000,
+            "pongTimeout": 1000,
+            "pingPongSatisfaction": 500
         },
         "ftx": {
             "key": null,
-            "secret": null
+            "secret": null,
+            "pingInterval": 10000,
+            "pongTimeout": 1000,
+            "pingPongSatisfaction": 50
         }
     },
     "notify": {
@@ -63,7 +107,7 @@
     },
     "tick": {
         "default": null,
-        "orderbook_default": null,
+        "orderbook_default": 2000,
         "warmup": null,
         "signal": null,
         "watchdog": null,
