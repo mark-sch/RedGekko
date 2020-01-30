@@ -29,7 +29,7 @@
     "basic-auth": "^2.0.1",
     "better-queue": "^3.8.10",
     "better-sqlite3": "^5.4.3",
-    "binance-api-node": "^0.9.10",
+    "binance-api-node": "^0.9.14",
     "bitfinex-api-node": "^3.0.2",
     "bitmex-realtime-api": "^0.4.0",
     "ccxt": "^1.21.85",
