@@ -32,7 +32,7 @@ module.exports = class CreateOrderListener {
       console.log('*** Error creating hedged orders: Orders did not fill in time.');
     }
     else {
-      setTimeout(me.syncAndCheckHedge, 2000, opportunity, ++counter);
+      setTimeout(me.syncAndCheckHedge, 4000, opportunity, ++counter);
     }
   }
 
@@ -55,7 +55,7 @@ module.exports = class CreateOrderListener {
       console.log('*** Error closing hedged orders: Orders did not fill in time.');
     }
     else {
-      setTimeout(me.syncAndCheckCloseHedge, 2000, opportunity, ++counter);
+      setTimeout(me.syncAndCheckCloseHedge, 4000, opportunity, ++counter);
     }
   }
 
