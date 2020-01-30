@@ -29,7 +29,7 @@ module.exports = class BinanceFutures {
     this.ccxtClient = undefined;
   }
 
-  start(config, symbols) {
+  async start(config, symbols) {
     const { eventEmitter } = this;
     const { logger } = this;
     this.exchange = null;
@@ -64,11 +64,16 @@ module.exports = class BinanceFutures {
     this.pingInterval = config.pingInterval ? config.pingInterval : 10000;
     this.pongTimeout = config.pongTimeout ? config.pongTimeout : 1000;
     this.pingPongSatisfaction = this.pingPongSatisfaction = config.pingPongSatisfaction ? config.pingPongSatisfaction : 150;
-
+    this.timeOffset = await this.getServerTimeOffset();
+    
     if (config.key && config.secret && config.key.length > 0 && config.secret.length > 0) {
       setInterval(async () => {
         await me.ccxtExchangeOrder.syncOrders();
       }, 1000 * 30);
+
+      setInterval(async () => {
+        me.timeOffset = await me.getServerTimeOffset();
+      }, 1000 * 120);
 
       setTimeout(async () => {
         await ccxtClient.fetchMarkets();
@@ -197,13 +202,42 @@ module.exports = class BinanceFutures {
     return 'binance_futures';
   }
 
+  async getServerTimeOffset() {
+    const verb = 'GET';
+    const path = '/fapi/v1/time';
+
+    const headers = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    };
+
+    let dtStartRequest = new Date().getTime();
+    const result = await this.requestClient.executeRequest(
+      {
+        headers: headers,
+        url: this.getBaseUrl() + path,
+        method: verb
+      },
+      result => {
+        return result && result.response && result.response.statusCode >= 500;
+      }
+    );
+    let dtFinishedRequest = new Date().getTime();
+    let conLatency = dtStartRequest - dtFinishedRequest;
+
+    let dtServerTime = JSON.parse(result.response.body).serverTime;
+    let localOffset = dtServerTime - dtFinishedRequest;
+
+    //console.log(`*** ${this.getName()}: Local time is ${dtFinishedRequest}, request latency is ${conLatency}ms, server time is ${dtServerTime}ms, localTimeOffset is ${localOffset}ms`);
+    return localOffset;
+  }
+
   async fastOrder(order, resolve) {
     const query = {
       symbol: order.getSymbol(),
       side: order.isShort() ? 'SELL' : 'BUY',
       quantity: order.getAmount(),
       type: order.getType().toUpperCase(),
-      timestamp: new Date().getTime()
+      timestamp: new Date().getTime() + this.timeOffset
     };
 
     const verb = 'POST';
@@ -221,7 +255,7 @@ module.exports = class BinanceFutures {
     };
 
     let dtOrderEntry = new Date().getTime();
-    console.log(dtOrderEntry + ` *** ${this.getName()}: before order execution`);
+    //console.log(dtOrderEntry + ` *** ${this.getName()}: before order execution`);
     const result = await this.requestClient.executeRequest(
       {
         headers: headers,
