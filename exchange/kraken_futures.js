@@ -82,7 +82,7 @@ module.exports = class Kraken {
       });
     */
 
-    const ws = new WebSocket(this.getWssUrl());;
+    var ws = new WebSocket(this.getWssUrl());
     const me = this;
 
     ws.onopen = function() {
@@ -302,6 +302,7 @@ module.exports = class Kraken {
       this.ConnectionHealth = "Bad";
       this._teardown();
       ws.terminate();
+      ws = new WebSocket(this.getWssUrl());;
     }, this.pongTimeout);
   }
 

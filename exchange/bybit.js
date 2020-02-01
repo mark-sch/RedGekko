@@ -80,7 +80,7 @@ module.exports = class Bybit {
         });
       });
 
-    const ws = new WebSocket(this.getWssUrl());;
+    var ws = new WebSocket(this.getWssUrl());
     const me = this;
 
     ws.onopen = function() {
@@ -327,6 +327,7 @@ module.exports = class Bybit {
       this.ConnectionHealth = "Bad";
       this._teardown();
       ws.terminate();
+      ws = new WebSocket(this.getWssUrl());
     }, this.pongTimeout);
   }
 

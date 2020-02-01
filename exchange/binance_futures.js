@@ -505,6 +505,7 @@ module.exports = class BinanceFutures {
       this.ConnectionHealth = "Bad";
       this._teardown();
       ws.terminate();
+      ws = new WebSocket(this.getBaseWebsocketUrl() + '/stream');
     }, this.pongTimeout);
   }
 
@@ -533,7 +534,7 @@ module.exports = class BinanceFutures {
     }
 
     const me = this;
-    const ws = new WebSocket(`${this.getBaseWebsocketUrl()}/ws/${response.listenKey}`);
+    var ws = new WebSocket(`${this.getBaseWebsocketUrl()}/ws/${response.listenKey}`);
     ws.onerror = function(e) {
       me.logger.info(`${me.getName()}: Connection error: ${String(e)}`);
       console.log(`${me.getName()}: Connection error: `, e.error);

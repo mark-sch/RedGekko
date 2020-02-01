@@ -98,7 +98,7 @@ module.exports = class Ftx {
     this.orders = {};
     this.leverageUpdated = {};
 
-    const ws = new WebSocket('wss://ftx.com/ws/');
+    var ws = new WebSocket('wss://ftx.com/ws/');
 
     const me = this;
 
@@ -276,6 +276,7 @@ module.exports = class Ftx {
       this.ConnectionHealth = "Bad";
       this._teardown();
       ws.terminate();
+      ws = new WebSocket('wss://ftx.com/ws/');
     }, this.pongTimeout);
   }
 

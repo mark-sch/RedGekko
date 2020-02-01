@@ -112,7 +112,7 @@ module.exports = class Bitmex {
 
     const client = new BitMEXClient(opts);
     //use an extra ws connection to measure the ping speed
-    const ws = new WebSocket('wss://stream.binance.com:9443/ws');
+    var ws = new WebSocket('wss://stream.binance.com:9443/ws');
 
     ws.onopen = function() {
       me.pingTimer = setInterval(() => {me._ping(ws)}, me.pingInterval);
