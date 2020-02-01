@@ -1,4 +1,4 @@
-# RedGekko - crypto trading bot
+# RedGekko - crypto trading bot, v2020.1.67
 
 [![Build Status](https://travis-ci.org/Haehnchen/crypto-trading-bot.svg?branch=master)](https://travis-ci.org/Haehnchen/crypto-trading-bot)
 
