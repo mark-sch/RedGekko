@@ -19,7 +19,7 @@ module.exports = class PairsHttp {
 
         const position = await this.exchangeManager.getPosition(symbol.exchange, symbol.symbol);
         const state = await this.pairStateManager.get(symbol.exchange, symbol.symbol);
-console.log(symbol.trade);
+
         const item = {
           exchange: symbol.exchange,
           symbol: symbol.symbol,

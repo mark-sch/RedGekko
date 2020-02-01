@@ -4508,7 +4508,8 @@ input[type="button"].btn-block {
 }
 
 .navbar-light .navbar-brand {
-  color: rgba(0, 0, 0, 0.9);
+  color: rgba(210, 0, 0, 0.9);
+  margin-top: 2px;
 }
 
 .navbar-light .navbar-brand:hover, .navbar-light .navbar-brand:focus {
