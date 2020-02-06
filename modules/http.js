@@ -5,6 +5,9 @@ const auth = require('basic-auth');
 const cookieParser = require('cookie-parser');
 const crypto = require('crypto');
 const moment = require('moment');
+const fs = require('fs');
+const _ = require('lodash');
+const HedgesHttp = require('./pairs/hedges_http.js');
 
 module.exports = class Http {
   constructor(
@@ -360,8 +363,39 @@ module.exports = class Http {
         });
       }
 
+      let hedges, openhedges;
+      let arrHedges, arrOpenHedges = [];
+      let hedgesHttp = new HedgesHttp();
+      let objTotal = {
+        totalprofit: 0,
+        totalprofitpercent: 0,
+        totalmarginprofitpercent: 0,
+        totalordervolume: 0
+      };
+      try {
+          const path = require("path");
+          let rawdata = fs.readFileSync(path.resolve(__dirname, '../hedgelog-japan.json'));
+          hedges = JSON.parse(rawdata);
+          rawdata = fs.readFileSync(path.resolve(__dirname, '../openhedges.json'));
+          openhedges = JSON.parse(rawdata);
+
+          arrHedges = hedgesHttp.getCompletedHedges(hedges);
+          arrHedges[0].isFirstCompletedHedge = true;
+          if (arrHedges.length > 0) {
+            objTotal.totalprofit = arrHedges[0].totalprofit;
+            objTotal.totalprofitpercent = arrHedges[0].totalprofitpercent;
+            objTotal.totalmarginprofitpercent = arrHedges[0].totalmarginprofitpercent;
+            objTotal.totalordervolume = arrHedges[0].totalordervolume;
+          }
+          arrOpenHedges = hedgesHttp.getOpenHedges(openhedges);
+      } catch (err) {
+          hedges = undefined;
+      }
+      
       res.render('../templates/trades.html.twig', {
         orders: orders,
+        hedges: arrOpenHedges.concat(arrHedges),
+        total: objTotal,
         positions: positions.sort(
           (a, b) =>
             (!a.position.createdAt ? 0 : a.position.createdAt.getTime()) -

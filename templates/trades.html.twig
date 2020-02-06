@@ -172,6 +172,31 @@
                                 <h3 class="card-title">History</h3>
                             </div>
                             <!-- /.card-header -->
+
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-sm table-hover">
+                                        <thead>
+                                        <tr>
+                                            <th scope="col">Total Order-Volume USD</th>
+                                            <th scope="col">Total Profit</th>
+                                            <th scope="col">Total Profit %</th>
+                                            <th scope="col">Total Margin-Profit %</th>
+                                        </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            <tr>
+                                                <td>{{ total.totalordervolume }} USD</td>
+                                                <td>{{ total.totalprofit }} USD</td>
+                                                <td>{{ total.totalprofitpercent }} %</td>
+                                                <td>{{ total.totalmarginprofitpercent }} %</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
                             <div class="card-body">
                                 <div class="table-responsive">
                                     <table class="table table-bordered table-sm table-hover">
@@ -183,36 +208,40 @@
                                             <th scope="col">Duration</th>
                                             <th scope="col">Inverse</th>
                                             <th scope="col">Amount</th>
+                                            <th scope="col">USD</th>
                                             <th scope="col">Found</th>
                                             <th scope="col">Traded</th>
+                                            <th scope="col">Fees %</th>
                                             <th scope="col">Long Latency</th>
                                             <th scope="col">Short Latency</th>
                                             <th scope="col">Long Execution</th>
                                             <th scope="col">Short Execution</th>
-                                            <th scope="col">Fees</th>
-                                            <th scope="col">Profit</th>
                                             <th scope="col">Profit %</th>
+                                            <th scope="col">Profit</th>
+                                            <th scope="col">Margin-Profit %</th>
                                         </tr>
 
                                         </thead>
                                         <tbody>
                                         {% for hedge in hedges %}
-                                            <tr>
+                                            <tr style="{{ hedge.isFirstCompletedHedge ? 'border-top: 2px dotted lightgrey' : '' }}">
                                                 <td>{{ hedge.long }}</td>
                                                 <td>{{ hedge.short }}</td>
                                                 <td>{{ hedge.entry }}</td>
                                                 <td>{{ hedge.duration }}</td>
                                                 <td>{{ hedge.inverse }}</td>
                                                 <td>{{ hedge.amount }}</td>
-                                                <td>{{ hedge.foundspread }}</td>
-                                                <td class="text-success">{{ hedge.tradedspread }}</td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
+                                                <td>{{ hedge.amountusd }}</td>
+                                                <td>{{ hedge.foundspread }} %</td>
+                                                <td class="{{ hedge.tradedspread < 0 ? 'text-danger' : 'text-success' }}">{{ hedge.tradedspread }} %</td>
+                                                <td>{{ hedge.totalfeespercent }} %</td>
+                                                <td>{{ hedge.longlatency }}</td>
+                                                <td>{{ hedge.shortlatency }}</td>
+                                                <td>{{ hedge.longexecution }}</td>
+                                                <td>{{ hedge.shortexecution }}</td>
+                                                <td class="{{ hedge.profitpercent < 0 ? 'text-danger' : 'text-success' }}">{{ hedge.profitpercent }} %</td>
+                                                <td>{{ hedge.profit }}</td>
+                                                <td>{{ hedge.marginprofitpercent }} %</td>
                                             </tr>
                                         {% endfor %}
                                         </tbody>
