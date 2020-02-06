@@ -13,6 +13,11 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
     <link rel="icon" href="{{ '/favicon.ico' }}"/>
 
+    <style>
+        #particles-js{ position: absolute; width: 100%; height: 100%; z-index: 0; }
+        #particles-js canvas{ position: absolute; width: 100%; height: 100%; z-index: -1;}
+    </style>
+
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="/css/fontawesome.css">
     <!-- Theme style -->
@@ -31,7 +36,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
 <div class="wrapper">
     <!-- Navbar -->
     <nav class="main-header navbar navbar-expand-md navbar-light navbar-white">
+        <div id="particles-js"></div>
         <div class="container">
+        
             <a href="{{ '/' }}" class="navbar-brand">
                 <img src="{{ '/img/bitcoin.svg' }}" alt="Crypto Trading Bot Logo" class="brand-image img-circle elevation-1"
                      style="opacity: .8">
@@ -123,6 +130,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
         });
     })
 </script>
+<script src="http://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+<script>particlesJS("particles-js",{particles:{number:{value:300,density:{enable:!0,value_area:880.5001240704714}},color:{value:"#ea0b0b"},shape:{type:"circle",stroke:{width:1,color:"#cf4141"},polygon:{nb_sides:5},image:{src:"img/github.svg",width:100,height:100}},opacity:{value:.05603182607721182,random:!1,anim:{enable:!1,speed:1,opacity_min:.1,sync:!1}},size:{value:2,random:!0,anim:{enable:!1,speed:10,size_min:.1,sync:!1}},line_linked:{enable:!0,distance:180,color:"#9d1414",opacity:.4,width:1},move:{enable:!0,speed:3,direction:"none",random:!1,straight:!1,out_mode:"out",bounce:!1,attract:{enable:!1,rotateX:600,rotateY:1200}}},interactivity:{detect_on:"canvas",events:{onhover:{enable:!0,mode:"repulse"},onclick:{enable:!0,mode:"push"},resize:!0},modes:{grab:{distance:400,line_linked:{opacity:1}},bubble:{distance:400,size:40,duration:2,opacity:8,speed:3},repulse:{distance:200,duration:.4},push:{particles_nb:4},remove:{particles_nb:2}}},retina_detect:!0}),update=function(){requestAnimationFrame(update)},requestAnimationFrame(update);</script>
+
 {% block javascript %}{% endblock javascript %}
 
 </body>
