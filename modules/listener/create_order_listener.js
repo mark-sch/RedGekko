@@ -47,7 +47,6 @@ module.exports = class CreateOrderListener {
       opportunity.hPair.order.signal = "none";
       opportunity.hPair.order.hedgeCloseCompleted = true;
       console.log('*** Closing hedged orders completed successfully!');
-
       return;
     }
     
@@ -87,6 +86,7 @@ module.exports = class CreateOrderListener {
       let amount = opportunity.hPair.order.inverse ? cfgAmount * -1 : cfgAmount;
       opportunity.hPair.order.long.status = 'Opening';
       let order = { amount: amount, price: opportunity.hPair.order.long.foundPrice };
+      opportunity.hPair.order.long.latencyCreate = exchange1.pingPongDelay;
       this.fastHedgedOrders.createMarketOrder(opportunity.hPair.long.pair, order).then(result => {
         opportunity.hPair.order.long.idCreate = result.id;
         opportunity.hPair.order.long.execDurationCreate = result.execDuration;
@@ -100,6 +100,7 @@ module.exports = class CreateOrderListener {
     try {
       let amount = opportunity.hPair.order.inverse ? cfgAmount : cfgAmount * -1;
       opportunity.hPair.order.short.status = 'Opening';
+      opportunity.hPair.order.short.latencyCreate = exchange2.pingPongDelay;
       this.fastHedgedOrders.createMarketOrder(opportunity.hPair.short.pair, { amount: amount, price: opportunity.hPair.order.short.foundPrice }).then(result => {
         opportunity.hPair.order.short.idCreate = result.id;
         opportunity.hPair.order.short.execDurationCreate = result.execDuration;
@@ -140,6 +141,7 @@ module.exports = class CreateOrderListener {
     try {
       let amount = opportunity.hPair.order.long.amount * -1;
       opportunity.hPair.order.long.status = 'Closing';
+      opportunity.hPair.order.long.latencyClose = exchange1.pingPongDelay;
       this.fastHedgedOrders.createMarketOrder(opportunity.hPair.long.pair, { amount: amount, price: 1 }).then(result => {
         opportunity.hPair.order.long.idClose = result.id;
         opportunity.hPair.order.long.execDurationClose = result.execDuration;
@@ -153,6 +155,7 @@ module.exports = class CreateOrderListener {
     try {
       let amount = opportunity.hPair.order.short.amount * -1;
       opportunity.hPair.order.short.status = 'Closing';
+      opportunity.hPair.order.short.latencyClose = exchange2.pingPongDelay;
       this.fastHedgedOrders.createMarketOrder(opportunity.hPair.short.pair, { amount: amount, price: 1 }).then(result => {
         opportunity.hPair.order.short.idClose = result.id;
         opportunity.hPair.order.short.execDurationClose = result.execDuration;
