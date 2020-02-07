@@ -369,15 +369,23 @@ module.exports = class BinanceFutures {
     }
 
     var _trade = response.filter(trade => trade.orderId && Number(trade.orderId) == Number(orderId));
-    if (_trade.length == 1) {
-      _trade = {
-        symbol: _trade[0].symbol,
-        side: _trade[0].side.toUpperCase(),
-        price: Number(_trade[0].price),
-        amount: _trade[0].side.toUpperCase() == 'BUY' ? Number(_trade[0].qty) : Number(_trade[0].qty) * -1
-      }
-    } 
     
+    if (Array.isArray(_trade) && _trade.length >= 1) {
+      let sumTrades = {
+        price: 0,
+        amount: 0
+      };
+      _trade.forEach(trade => {
+        let amount = trade.side.toUpperCase() == 'BUY' ? Number(trade.qty) : Number(trade.qty) * -1
+        sumTrades.symbol = trade.symbol,
+          sumTrades.side = trade.side.toUpperCase(),
+          sumTrades.price += Number(trade.price) * Number(amount),
+          sumTrades.amount += Number(amount)
+      });
+      sumTrades.price = sumTrades.price / sumTrades.amount;
+      _trade = sumTrades;
+    }
+
     return _trade;
   }
 
