@@ -1,5 +1,8 @@
 module.exports = class StrategyContext {
   constructor(ticker) {
+    this.exchange = ticker.exchange;
+    this.symbol = ticker.symbol;
+    this.time = ticker.time;
     this.bid = ticker.bid;
     this.ask = ticker.ask;
 
