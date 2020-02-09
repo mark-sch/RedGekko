@@ -374,7 +374,7 @@ module.exports = class Http {
       };
       try {
           const path = require("path");
-          let rawdata = fs.readFileSync(path.resolve(__dirname, '../hedgelog-japan.json'));
+          let rawdata = fs.readFileSync(path.resolve(__dirname, '../hedgelog.json'));
           hedges = JSON.parse(rawdata);
           rawdata = fs.readFileSync(path.resolve(__dirname, '../openhedges.json'));
           openhedges = JSON.parse(rawdata);

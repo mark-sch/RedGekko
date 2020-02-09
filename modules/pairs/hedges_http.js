@@ -7,11 +7,13 @@ module.exports = class HedgesHttp {
 
   getCompletedHedges(hedges) {
     let arrHedges = [];
+    let count = 0;
     var totalProfit = 0, totalProfitPercent = 0, totalMarginProfitPercent = 0, totalOrderVolume = 0;
 
     Object.keys(hedges).forEach(item => {
         let hedge = hedges[item];
         let arrPair = hedge.pair.split('###');
+        count++;
         hedge.long.fee = arrPair[0].includes('binance_futures') ? 0.04 : hedge.long.fee;
         hedge.long.fee = arrPair[0].includes('ftx') ? 0.07 : hedge.long.fee;
         hedge.long.fee = arrPair[0].includes('bitmex') ? 0.075 : hedge.long.fee;
@@ -27,6 +29,7 @@ module.exports = class HedgesHttp {
         let profitPercent = Number(totalTradedSpread - totalFeesPercent).toFixed(2);
 
         let entry = {
+          count: count,
           long: arrPair[0],
           short: arrPair[1],
           entry: start.format('DD.MM.YY[&nbsp;]HH:mm[h]'),
@@ -83,6 +86,7 @@ module.exports = class HedgesHttp {
         let profitPercent = '-'
 
         let entry = {
+          count: '',
           long: arrPair[0],
           short: arrPair[1],
           entry: start.format('DD.MM.YY[&nbsp;]HH:mm[h]'),

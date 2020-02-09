@@ -202,6 +202,7 @@
                                     <table class="table table-bordered table-sm table-hover">
                                         <thead>
                                         <tr>
+                                            <th scope="col">#</th>
                                             <th scope="col">Long</th>
                                             <th scope="col">Short</th>
                                             <th scope="col">Entry</th>
@@ -225,6 +226,7 @@
                                         <tbody>
                                         {% for hedge in hedges %}
                                             <tr style="{{ hedge.isFirstCompletedHedge ? 'border-top: 2px dotted lightgrey' : '' }}">
+                                                <td><i>{{ hedge.count }}</i></td>
                                                 <td>{{ hedge.long }}</td>
                                                 <td>{{ hedge.short }}</td>
                                                 <td>{{ hedge.entry }}</td>
