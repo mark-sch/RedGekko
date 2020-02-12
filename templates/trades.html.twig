@@ -179,6 +179,8 @@
                                         <thead>
                                         <tr>
                                             <th scope="col">Total Order-Volume USD</th>
+                                            <th scope="col">Avg. L-Bias</th>
+                                            <th scope="col">Avg. S-Bias</th>
                                             <th scope="col">Total Profit</th>
                                             <th scope="col">Total Profit %</th>
                                             <th scope="col">Total Margin-Profit %</th>
@@ -188,6 +190,8 @@
                                         <tbody>
                                             <tr>
                                                 <td>{{ total.totalordervolume }} USD</td>
+                                                <td>{{ total.avglbias }} %</td>
+                                                <td>{{ total.avgsbias }} %</td>
                                                 <td>{{ total.totalprofit }} USD</td>
                                                 <td>{{ total.totalprofitpercent }} %</td>
                                                 <td>{{ total.totalmarginprofitpercent }} %</td>
@@ -208,10 +212,12 @@
                                             <th scope="col">Entry</th>
                                             <th scope="col">Duration</th>
                                             <th scope="col">Inverse</th>
-                                            <th scope="col">Amount</th>
+                                            <th scope="col">Qty</th>
                                             <th scope="col">USD</th>
                                             <th scope="col">Found</th>
                                             <th scope="col">Traded</th>
+                                            <th scope="col">L-Bias</th>
+                                            <th scope="col">S-Bias</th>
                                             <th scope="col">Fees %</th>
                                             <th scope="col">Long Latency</th>
                                             <th scope="col">Short Latency</th>
@@ -236,6 +242,8 @@
                                                 <td>{{ hedge.amountusd }}</td>
                                                 <td>{{ hedge.foundspread }} %</td>
                                                 <td class="{{ hedge.tradedspread < 0 ? 'text-danger' : 'text-success' }}">{{ hedge.tradedspread }} %</td>
+                                                <td>{{ hedge.lbias }} %</td>
+                                                <td>{{ hedge.sbias }} %</td>
                                                 <td>{{ hedge.totalfeespercent }} %</td>
                                                 <td>{{ hedge.longlatency }}</td>
                                                 <td>{{ hedge.shortlatency }}</td>

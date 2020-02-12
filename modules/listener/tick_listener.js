@@ -37,17 +37,6 @@ module.exports = class TickListener {
       obSnapshot,
       strategy.options || {}
     );
-    if (!result) {
-      return;
-    }
-
-    /* handle the hedged signal processing here later
-
-    const signal = result.getHedgedSignal();
-    if (!signal || typeof signal === 'undefined') {
-      return;
-    }
-    */
   }
 
   

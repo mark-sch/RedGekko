@@ -9,6 +9,7 @@ module.exports = class HedgesHttp {
     let arrHedges = [];
     let count = 0;
     var totalProfit = 0, totalProfitPercent = 0, totalMarginProfitPercent = 0, totalOrderVolume = 0;
+    var totalLBias = 0, totalSBias = 0;
 
     Object.keys(hedges).forEach(item => {
         let hedge = hedges[item];
@@ -30,8 +31,8 @@ module.exports = class HedgesHttp {
 
         let entry = {
           count: count,
-          long: arrPair[0],
-          short: arrPair[1],
+          long: arrPair[0].replace('binance_futures','bf'),
+          short: arrPair[1].replace('binance_futures','bf'),
           entry: start.format('DD.MM.YY[&nbsp;]HH:mm[h]'),
           duration: moment.utc(close.diff(start)).format("HH:mm:ss.SSS"),
           inverse: hedge.inverse,
@@ -39,6 +40,8 @@ module.exports = class HedgesHttp {
           amountusd: amountUsd,
           foundspread: totalFoundSpread,
           tradedspread: totalTradedSpread,
+          lbias: Number(Math.abs(100 * ((hedge.long.foundPrice - hedge.long.tradedPrice) / hedge.long.tradedPrice)) + Math.abs(100 * ((hedge.long.foundClosePrice - hedge.long.tradedClosePrice) / hedge.long.tradedClosePrice))).toFixed(2),
+          sbias: Number(Math.abs(100 * ((hedge.short.foundPrice - hedge.short.tradedPrice) / hedge.short.tradedPrice)) + Math.abs(100 * ((hedge.short.foundClosePrice - hedge.short.tradedClosePrice) / hedge.short.tradedClosePrice))).toFixed(2),
           longlatency: `${hedge.long.latencyCreate} ms / ${hedge.long.latencyClose} ms`.replace(/undefined/g,'-'),
           shortlatency: `${hedge.short.latencyCreate} ms / ${hedge.short.latencyClose} ms`.replace(/undefined/g,'-'),
           longexecution: `${String(hedge.long.execDurationCreate).replace(/undefined/g,'-')} ms / ${String(hedge.long.execDurationClose).replace(/undefined/g,'-')} ms`,
@@ -52,11 +55,15 @@ module.exports = class HedgesHttp {
         totalProfitPercent += Number(entry.profitpercent);
         totalMarginProfitPercent += Number(entry.marginprofitpercent);
         totalOrderVolume += entry.amountusd * 4;
+        totalLBias += Number(entry.lbias);
+        totalSBias += Number(entry.sbias);
 
         entry.totalprofit = totalProfit.toFixed(2);
         entry.totalprofitpercent = totalProfitPercent.toFixed(2);
         entry.totalmarginprofitpercent = totalMarginProfitPercent.toFixed(2);
         entry.totalordervolume = totalOrderVolume.toFixed(2);
+        entry.avglbias = Number(totalLBias / count).toFixed(2);
+        entry.avgsbias = Number(totalSBias / count).toFixed(2);
 
         arrHedges.push(entry);
       });
@@ -96,6 +103,8 @@ module.exports = class HedgesHttp {
           amountusd: amountUsd,
           foundspread: totalFoundSpread,
           tradedspread: totalTradedSpread,
+          lbias: '-',
+          sbias: '-',
           longlatency: `${hedge.long.latencyCreate} ms / - ms`.replace(/undefined/g,'-'),
           shortlatency: `${hedge.short.latencyCreate} ms / - ms`.replace(/undefined/g,'-'),
           longexecution: `${String(hedge.long.execDurationCreate).replace(/undefined/g,'-')} ms / - ms`,

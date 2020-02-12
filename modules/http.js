@@ -386,6 +386,8 @@ module.exports = class Http {
             objTotal.totalprofitpercent = arrHedges[0].totalprofitpercent;
             objTotal.totalmarginprofitpercent = arrHedges[0].totalmarginprofitpercent;
             objTotal.totalordervolume = arrHedges[0].totalordervolume;
+            objTotal.avglbias = arrHedges[0].avglbias;
+            objTotal.avgsbias = arrHedges[0].avgsbias;
           }
           arrOpenHedges = hedgesHttp.getOpenHedges(openhedges);
       } catch (err) {
