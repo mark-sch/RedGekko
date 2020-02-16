@@ -83,10 +83,6 @@ module.exports = class Trade {
         eventEmitter.emit('tick', {});
       }, this.systemUtil.getConfig('tick.default', 20100));
 
-      setInterval(() => {
-        eventEmitter.emit('orderbook_tick', {});
-      }, this.systemUtil.getConfig('tick.orderbook_default', 2000));
-
       // order create tick
       setInterval(() => {
         eventEmitter.emit('signal_tick', {});
@@ -116,16 +112,17 @@ module.exports = class Trade {
       me.tickerDatabaseListener.onTicker(tickerEvent);
     });
 
-    eventEmitter.on('orderbook', function(orderbookEvent) {
-      let ob = orderbookEvent.orderbook;
-      let bid = Number(ob.bids[0].price);
-      let ask = Number(ob.asks[0].price);
+    eventEmitter.on('orderbook', function(ob) {
+      //let ob = orderbookEvent.orderbook;
+      //let bid = Number(ob.bids[0].price);
+      //let ask = Number(ob.asks[0].price);
 
-      let buySlippage = obUtil.getBuySlippageCurrency(100000, ob);
-      let sellSlippage = obUtil.getSellSlippageCurrency(100000, ob);
-      let depth = obUtil.depth(ob);
+      //let buySlippage = obUtil.getBuySlippageCurrency(100000, ob);
+      //let sellSlippage = obUtil.getSellSlippageCurrency(100000, ob);
+      //let depth = obUtil.depth(ob);
     
-      me.orderbookSnaphots.upsert(orderbookEvent.exchange, orderbookEvent.symbol, ob);
+      //me.orderbookSnaphots.upsert(orderbookEvent.exchange, orderbookEvent.symbol, ob);
+      me.tickListener.onOrderbookTick(ob);
       //console.log('Received', orderbookEvent.exchange, 'orderbook data,', orderbookEvent.symbol + '. bid:', bid,'ask:', ask, 'spread:', (((ask-bid)/ask)*100).toFixed(4) +'%,', 'depth:', depth.sellTotalMio + 'M/' + depth.buyTotalMio + 'M', 'sell/buy slippage 100k:', sellSlippage.mySlippage + '%/' + buySlippage.mySlippage +'% (' + sellSlippage.myPrice + ('/' + buySlippage.myPrice + ')'));
     });
 
@@ -137,10 +134,6 @@ module.exports = class Trade {
 
     eventEmitter.on('tick', async () => {
       me.tickListener.onTick();
-    });
-
-    eventEmitter.on('orderbook_tick', async () => {
-      me.tickListener.onOrderbookTick(me.orderbookSnaphots.getAllSnapshots());
     });
 
     eventEmitter.on('watchdog', async () => {
