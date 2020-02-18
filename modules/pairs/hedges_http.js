@@ -87,20 +87,22 @@ module.exports = class HedgesHttp {
         hedge.short.fee = arrPair[1].includes('bitmex') ? 0.075 : hedge.short.fee;
         let start = new moment(hedge.foundDate);
         let amountUsd = Number(((hedge.long.tradedPrice + hedge.short.tradedPrice)/2)*hedge.amount).toFixed(2);
+        let maxInvest = hedge.maxInvestQty !== undefined ? Number(hedge.maxInvestQty).toFixed(0) : '';
         let totalFoundSpread = Math.abs(Number(hedge.spreadFoundPercent).toFixed(2));
         let totalTradedSpread = Math.abs(Number(hedge.spreadTradedPercent).toFixed(2));
         let totalFeesPercent = Number(2*hedge.long.fee + 2*hedge.short.fee).toFixed(2);
         let profitPercent = '-'
 
         let entry = {
-          count: '',
-          long: arrPair[0],
-          short: arrPair[1],
+          long: arrPair[0].replace('binance_futures','bf'),
+          short: arrPair[1].replace('binance_futures','bf'),
+          entryepoch: start,
           entry: start.format('DD.MM.YY[&nbsp;]HH:mm[h]'),
           duration: 'open',
           inverse: hedge.inverse,
           amount: hedge.amount,
           amountusd: amountUsd,
+          maxinvest: maxInvest,
           foundspread: totalFoundSpread,
           tradedspread: totalTradedSpread,
           lbias: '-',
@@ -116,6 +118,13 @@ module.exports = class HedgesHttp {
         };
         arrHedges.push(entry);
       });
+
+      let sortedhedges = arrHedges.sort((a, b) => a.entryepoch - b.entryepoch);
+      let count = 0;
+      sortedhedges.forEach(item => {
+        count++;
+        item.count = '< ' + count + ' >';
+      })
 
       arrHedges = arrHedges.slice().reverse();
       return arrHedges;

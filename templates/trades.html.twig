@@ -213,7 +213,8 @@
                                             <th scope="col">Duration</th>
                                             <th scope="col">Inverse</th>
                                             <th scope="col">Qty</th>
-                                            <th scope="col">USD</th>
+                                            <th scope="col" style="text-align: right">Traded USD</th>
+                                            <th scope="col" style="text-align: right">Max. USD</th>
                                             <th scope="col">Found</th>
                                             <th scope="col">Traded</th>
                                             <th scope="col">L-Bias</th>
@@ -239,7 +240,8 @@
                                                 <td>{{ hedge.duration }}</td>
                                                 <td>{{ hedge.inverse }}</td>
                                                 <td>{{ hedge.amount }}</td>
-                                                <td>{{ hedge.amountusd }}</td>
+                                                <td style="text-align: right">{{ hedge.amountusd }}</td>
+                                                <td style="text-align: right">{{ hedge.maxinvest }}</td>
                                                 <td>{{ hedge.foundspread }} %</td>
                                                 <td class="{{ hedge.tradedspread < 0 ? 'text-danger' : 'text-success' }}">{{ hedge.tradedspread }} %</td>
                                                 <td>{{ hedge.lbias }} %</td>

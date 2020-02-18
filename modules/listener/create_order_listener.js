@@ -72,7 +72,7 @@ module.exports = class CreateOrderListener {
     let exchange2 =  this.exchangeManager.get(shortPair[0]);
     if (exchange1.ConnectionHealth != "Good" || exchange2.ConnectionHealth != "Good") {
       console.log("*** ATTENTION: Bad exchange connectivity, SKIPPING CREATE order!", exchange1.getName(), exchange1.pingPongDelay + 'ms', exchange1.ConnectionHealth, '/ ', exchange2.getName(), exchange2.pingPongDelay + 'ms', exchange2.ConnectionHealth);
-      setTimeout(() => { opportunity.hPair.order.signal = "none" }, 5000);
+      setTimeout(() => { opportunity.hPair.order.signal = "none" }, 60 * 1000);
       return;
     }
 
@@ -130,7 +130,7 @@ module.exports = class CreateOrderListener {
     let exchange2 =  this.exchangeManager.get(shortPair[0]);
     if (exchange1.ConnectionHealth != "Good" && exchange2.ConnectionHealth != "Good") {
       console.log("*** ATTENTION: Bad exchange connectivity, SKIPPING CLOSE order!", exchange1.getName(), exchange1.pingPongDelay + 'ms', exchange1.ConnectionHealth, '/ ', exchange2.getName(), exchange2.pingPongDelay + 'ms', exchange2.ConnectionHealth);
-      setTimeout(() => { opportunity.hPair.order.signal = "none" }, 5000);
+      setTimeout(() => { opportunity.hPair.order.signal = "none" }, 60 * 1000);
       return;
     }
 
