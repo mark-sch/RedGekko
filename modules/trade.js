@@ -112,7 +112,7 @@ module.exports = class Trade {
       me.tickerDatabaseListener.onTicker(tickerEvent);
     });
 
-    eventEmitter.on('orderbook', function(ob) {
+    eventEmitter.on('orderbook', function(ob, exchange) {
       //let ob = orderbookEvent.orderbook;
       //let bid = Number(ob.bids[0].price);
       //let ask = Number(ob.asks[0].price);
@@ -122,7 +122,7 @@ module.exports = class Trade {
       //let depth = obUtil.depth(ob);
     
       //me.orderbookSnaphots.upsert(orderbookEvent.exchange, orderbookEvent.symbol, ob);
-      me.tickListener.onOrderbookTick(ob);
+      me.tickListener.onOrderbookTick(ob, exchange);
       //console.log('Received', orderbookEvent.exchange, 'orderbook data,', orderbookEvent.symbol + '. bid:', bid,'ask:', ask, 'spread:', (((ask-bid)/ask)*100).toFixed(4) +'%,', 'depth:', depth.sellTotalMio + 'M/' + depth.buyTotalMio + 'M', 'sell/buy slippage 100k:', sellSlippage.mySlippage + '%/' + buySlippage.mySlippage +'% (' + sellSlippage.myPrice + ('/' + buySlippage.myPrice + ')'));
     });
 

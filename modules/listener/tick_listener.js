@@ -29,12 +29,13 @@ module.exports = class TickListener {
   }
 
 
-  async orderbook2Strategy(strategy, obSnapshot) {
+  async orderbook2Strategy(strategy, obSnapshot, exchange) {
     const strategyKey = strategy.strategy;
 
     const result = await this.strategyManager.onOrderbook(
       strategyKey,
       obSnapshot,
+      exchange,
       strategy.options || {}
     );
   }
@@ -200,7 +201,7 @@ module.exports = class TickListener {
   }
 
 
-  async onOrderbookTick(obSnapshots) {
+  async onOrderbookTick(obSnapshots, exchange) {
     const promises = [];
     const queue = new PQueue({ concurrency: this.systemUtil.getConfig('tick.pair_signal_concurrency', 10) });
 
@@ -214,7 +215,7 @@ module.exports = class TickListener {
       });
 
     for (var strategy in activeStrats) {
-      await this.orderbook2Strategy(activeStrats[strategy], obSnapshots);    
+      await this.orderbook2Strategy(activeStrats[strategy], obSnapshots, exchange);    
     };
   }
 };
