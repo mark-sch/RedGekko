@@ -111,6 +111,13 @@ Lets start it
 node index.js trade
 ```
 
+To run RedGekko on a server it is a good practice to launch the bot by using the pm2 tool:
+
+```
+pm2 start index.js -i 0 --name "RedGekko" -- trade
+```
+
+
 ## How to use: Docker
 
 For initialize the configuration once
