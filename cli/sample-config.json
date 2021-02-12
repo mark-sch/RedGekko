@@ -1,0 +1,7 @@
+{
+    "exchange": "Binance Futures",
+    "api": {
+        "key": "myapikey",
+        "secret": "myapipass"
+    }
+}
