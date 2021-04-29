@@ -24,7 +24,7 @@
     "javascript"
   ],
   "dependencies": {
-    "@tensorflow/tfjs-node": "^1.5.1",
+    "@tensorflow/tfjs-node": "^3.6.0",
     "DeltaBook": "git+https://git@github.com/mark-sch/DeltaBook.git",
     "async": "^3.1.0",
     "basic-auth": "^2.0.1",
