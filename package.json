@@ -33,7 +33,7 @@
     "binance-api-node": "^0.9.10",
     "bitfinex-api-node": "^3.0.2",
     "bitmex-realtime-api": "^0.4.0",
-    "ccxt": "^1.21.85",
+    "ccxt": "^1.50.30",
     "coinbase-pro": "^0.9.0",
     "colors": "^1.3.2",
     "commander": "^4.1.0",
