@@ -62,7 +62,7 @@
     "turbo-http": "git+https://github.com/aks-/turbo-http.git#add-client",
     "twig": "^1.13.3",
     "winston": "^3.2.1",
-    "ws": "^7.0.0",
+    "ws": "^7.4.6",
     "zero-fill": "^2.2.3"
   },
   "engines": {
